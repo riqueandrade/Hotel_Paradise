@@ -2,10 +2,13 @@ const db = require('../database/db');
 const bcrypt = require('bcryptjs');
 
 class UsuarioController {
-    async getPerfil(req, res) {
+    static async getPerfil(req, res) {
         try {
             const [usuarios] = await db.query(
-                'SELECT id, nome, email, cargo FROM usuarios WHERE id = ?',
+                `SELECT u.id, u.nome, u.email, c.nome as cargo_nome, c.id as cargo_id
+                 FROM usuarios u
+                 JOIN cargos c ON u.cargo_id = c.id
+                 WHERE u.id = ?`,
                 [req.userId]
             );
 
@@ -13,14 +16,22 @@ class UsuarioController {
                 return res.status(404).json({ error: 'Usuário não encontrado' });
             }
 
-            res.json(usuarios[0]);
+            res.json({
+                id: usuarios[0].id,
+                nome: usuarios[0].nome,
+                email: usuarios[0].email,
+                cargo: {
+                    id: usuarios[0].cargo_id,
+                    nome: usuarios[0].cargo_nome
+                }
+            });
         } catch (error) {
             console.error('Erro ao buscar perfil:', error);
             res.status(500).json({ error: 'Erro ao buscar perfil' });
         }
     }
 
-    async atualizarPerfil(req, res) {
+    static async atualizarPerfil(req, res) {
         const { nome, email, senha } = req.body;
 
         try {
@@ -49,7 +60,6 @@ class UsuarioController {
             query += ' WHERE id = ?';
             params.push(req.userId);
 
-            // Executa a atualização
             await db.query(query, params);
 
             res.json({ message: 'Perfil atualizado com sucesso' });
@@ -60,4 +70,4 @@ class UsuarioController {
     }
 }
 
-module.exports = new UsuarioController(); 
+module.exports = UsuarioController; 

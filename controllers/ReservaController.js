@@ -113,13 +113,13 @@ class ReservaController {
         }
     }
 
-    // Buscar estatísticas
+    // Buscar estatísticas das reservas
     static async buscarEstatisticas(req, res) {
         try {
-            const estatisticas = await Reserva.buscarEstatisticas();
-            res.json(estatisticas);
+            const stats = await Reserva.buscarEstatisticas();
+            res.json(stats);
         } catch (error) {
-            errorHandler(res, error, 'Erro ao buscar estatísticas');
+            errorHandler(res, error, 'Erro ao buscar estatísticas das reservas');
         }
     }
 }

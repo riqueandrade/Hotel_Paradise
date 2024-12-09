@@ -42,62 +42,41 @@ async function carregarConfiguracoes() {
 
         if (responseConfig.ok) {
             const config = await responseConfig.json();
-            document.getElementById('nomeHotel').value = config.nomeHotel;
+            document.getElementById('nome_hotel').value = config.nome_hotel;
             document.getElementById('endereco').value = config.endereco;
             document.getElementById('telefone').value = config.telefone;
-            document.getElementById('emailContato').value = config.emailContato;
+            document.getElementById('email_contato').value = config.email_contato;
 
-            // Carregar preferências de notificação
-            document.getElementById('notifReservas').checked = config.notificacoes?.reservas ?? true;
-            document.getElementById('notifCheckIn').checked = config.notificacoes?.checkIn ?? true;
-            document.getElementById('notifCheckOut').checked = config.notificacoes?.checkOut ?? true;
-            document.getElementById('notifProdutos').checked = config.notificacoes?.produtos ?? true;
+            if (config.notificacoes) {
+                const notificacoes = typeof config.notificacoes === 'string' 
+                    ? JSON.parse(config.notificacoes) 
+                    : config.notificacoes;
+
+                document.getElementById('notifReservas').checked = notificacoes.reservas;
+                document.getElementById('notifCheckIn').checked = notificacoes.checkIn;
+                document.getElementById('notifCheckOut').checked = notificacoes.checkOut;
+                document.getElementById('notifProdutos').checked = notificacoes.produtos;
+            }
 
             // Atualizar data do último backup
-            if (config.ultimoBackup) {
-                document.getElementById('ultimoBackup').textContent = new Date(config.ultimoBackup).toLocaleString();
+            if (config.ultimo_backup) {
+                document.getElementById('ultimoBackup').textContent = 
+                    new Date(config.ultimo_backup).toLocaleString();
             }
         }
     } catch (error) {
         console.error('Erro ao carregar configurações:', error);
-        mostrarNotificacao('Erro ao carregar configurações', 'danger');
+        showToast('Erro ao carregar configurações', 'error');
     }
 }
 
 async function salvarConfiguracoes() {
     try {
-        const senha = document.getElementById('senha').value;
-        const confirmarSenha = document.getElementById('confirmarSenha').value;
-
-        if (senha && senha !== confirmarSenha) {
-            mostrarNotificacao('As senhas não coincidem', 'warning');
-            return;
-        }
-
-        // Salvar dados do usuário
-        const dadosUsuario = {
-            nome: document.getElementById('nome').value,
-            email: document.getElementById('email').value,
-            ...(senha && { senha })
-        };
-
-        const responseUsuario = await fetch('/api/usuarios/perfil', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify(dadosUsuario)
-        });
-
-        if (!responseUsuario.ok) throw new Error('Erro ao atualizar perfil');
-
-        // Salvar configurações do sistema
         const dadosConfig = {
-            nomeHotel: document.getElementById('nomeHotel').value,
+            nome_hotel: document.getElementById('nome_hotel').value,
             endereco: document.getElementById('endereco').value,
             telefone: document.getElementById('telefone').value,
-            emailContato: document.getElementById('emailContato').value,
+            email_contato: document.getElementById('email_contato').value,
             notificacoes: {
                 reservas: document.getElementById('notifReservas').checked,
                 checkIn: document.getElementById('notifCheckIn').checked,
@@ -106,7 +85,7 @@ async function salvarConfiguracoes() {
             }
         };
 
-        const responseConfig = await fetch('/api/configuracoes', {
+        const response = await fetch('/api/configuracoes', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -115,12 +94,15 @@ async function salvarConfiguracoes() {
             body: JSON.stringify(dadosConfig)
         });
 
-        if (!responseConfig.ok) throw new Error('Erro ao atualizar configurações');
-
-        mostrarNotificacao('Configurações salvas com sucesso', 'success');
+        if (response.ok) {
+            showToast('Configurações salvas com sucesso', 'success');
+            await carregarConfiguracoes(); // Recarrega as configurações
+        } else {
+            throw new Error('Erro ao salvar configurações');
+        }
     } catch (error) {
         console.error('Erro ao salvar configurações:', error);
-        mostrarNotificacao('Erro ao salvar configurações', 'danger');
+        showToast('Erro ao salvar configurações', 'error');
     }
 }
 

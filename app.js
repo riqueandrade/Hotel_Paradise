@@ -37,6 +37,8 @@ app.use('/api/relatorios', require('./routes/api/relatorios'));
 app.use('/api/usuarios', require('./routes/api/usuarios'));
 app.use('/api/configuracoes', require('./routes/api/configuracoes'));
 app.use('/api/dashboard', require('./routes/api/dashboard'));
+app.use('/api/reservas', require('./routes/api/reservas'));
+app.use('/api/clientes', require('./routes/api/clientes'));
 
 // Rota principal
 app.get('/', (req, res) => {
