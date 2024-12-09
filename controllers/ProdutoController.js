@@ -1,99 +1,160 @@
-const Produto = require('../models/Produto');
-const errorHandler = require('../utils/errorHandler');
+const db = require('../database/db');
 
 class ProdutoController {
-    // Listar todos os produtos
     static async listar(req, res) {
         try {
-            const produtos = await Produto.buscarTodos();
-            res.json(produtos);
+            const [produtos] = await db.query('SELECT * FROM produtos');
+            res.status(200).json(produtos);
         } catch (error) {
-            errorHandler(res, error, 'Erro ao listar produtos');
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao buscar produtos'
+            });
         }
     }
 
-    // Buscar produto por ID
     static async buscarPorId(req, res) {
         try {
-            const produto = await Produto.buscarPorId(req.params.id);
-            if (!produto) {
+            const { id } = req.params;
+            const [produtos] = await db.query('SELECT * FROM produtos WHERE id = ?', [id]);
+
+            if (produtos.length === 0) {
                 return res.status(404).json({ message: 'Produto não encontrado' });
             }
-            res.json(produto);
+
+            res.status(200).json(produtos[0]);
         } catch (error) {
-            errorHandler(res, error, 'Erro ao buscar produto');
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao buscar produto'
+            });
         }
     }
 
-    // Criar novo produto
     static async criar(req, res) {
         try {
-            const dados = req.body;
+            const { nome, descricao, preco, estoque } = req.body;
 
-            // Validações básicas
-            if (!dados.nome || !dados.categoria || !dados.preco) {
-                return res.status(400).json({ message: 'Dados incompletos' });
+            // Validações
+            if (!nome || !descricao || !preco || estoque === undefined) {
+                return res.status(400).json({ message: 'Dados inválidos' });
             }
 
-            const novoProduto = await Produto.criar(dados);
-            res.status(201).json(novoProduto);
+            // Insere produto
+            const [result] = await db.query(
+                'INSERT INTO produtos (nome, descricao, preco, estoque) VALUES (?, ?, ?, ?)',
+                [nome, descricao, preco, estoque]
+            );
+
+            res.status(201).json({
+                message: 'Produto criado com sucesso',
+                id: result.insertId
+            });
         } catch (error) {
-            errorHandler(res, error, 'Erro ao criar produto');
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao criar produto'
+            });
         }
     }
 
-    // Atualizar produto
     static async atualizar(req, res) {
         try {
-            const id = req.params.id;
-            const dados = req.body;
+            const { id } = req.params;
+            const { nome, descricao, preco, estoque } = req.body;
 
-            // Validações básicas
-            if (!dados.nome || !dados.categoria || !dados.preco) {
-                return res.status(400).json({ message: 'Dados incompletos' });
+            // Verifica se produto existe
+            const [produtoExistente] = await db.query('SELECT id FROM produtos WHERE id = ?', [id]);
+            if (produtoExistente.length === 0) {
+                return res.status(404).json({ message: 'Produto não encontrado' });
             }
 
-            const produtoAtualizado = await Produto.atualizar(id, dados);
-            res.json(produtoAtualizado);
+            // Monta query de atualização
+            const campos = [];
+            const valores = [];
+            if (nome) {
+                campos.push('nome = ?');
+                valores.push(nome);
+            }
+            if (descricao) {
+                campos.push('descricao = ?');
+                valores.push(descricao);
+            }
+            if (preco) {
+                campos.push('preco = ?');
+                valores.push(preco);
+            }
+            if (estoque !== undefined) {
+                campos.push('estoque = ?');
+                valores.push(estoque);
+            }
+
+            if (campos.length === 0) {
+                return res.status(400).json({ message: 'Nenhum dado para atualizar' });
+            }
+
+            valores.push(id);
+            await db.query(
+                `UPDATE produtos SET ${campos.join(', ')} WHERE id = ?`,
+                valores
+            );
+
+            res.status(200).json({ message: 'Produto atualizado com sucesso' });
         } catch (error) {
-            errorHandler(res, error, 'Erro ao atualizar produto');
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao atualizar produto'
+            });
         }
     }
 
-    // Excluir produto
-    static async excluir(req, res) {
-        try {
-            await Produto.excluir(req.params.id);
-            res.json({ message: 'Produto excluído com sucesso' });
-        } catch (error) {
-            errorHandler(res, error, 'Erro ao excluir produto');
-        }
-    }
-
-    // Atualizar estoque
     static async atualizarEstoque(req, res) {
         try {
             const { id } = req.params;
-            const { estoque } = req.body;
+            const { quantidade } = req.body;
 
-            if (typeof estoque !== 'number' || estoque < 0) {
+            if (quantidade === undefined || quantidade < 0) {
                 return res.status(400).json({ message: 'Quantidade inválida' });
             }
 
-            const produtoAtualizado = await Produto.atualizarEstoque(id, estoque);
-            res.json(produtoAtualizado);
+            // Verifica se produto existe
+            const [produtoExistente] = await db.query('SELECT id FROM produtos WHERE id = ?', [id]);
+            if (produtoExistente.length === 0) {
+                return res.status(404).json({ message: 'Produto não encontrado' });
+            }
+
+            await db.query(
+                'UPDATE produtos SET estoque = ? WHERE id = ?',
+                [quantidade, id]
+            );
+
+            res.status(200).json({ message: 'Estoque atualizado com sucesso' });
         } catch (error) {
-            errorHandler(res, error, 'Erro ao atualizar estoque');
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao atualizar estoque'
+            });
         }
     }
 
-    // Buscar estatísticas
     static async buscarEstatisticas(req, res) {
         try {
-            const estatisticas = await Produto.buscarEstatisticas();
-            res.json(estatisticas);
+            const [estatisticas] = await db.query(`
+                SELECT 
+                    COUNT(*) as total_produtos,
+                    SUM(estoque) as total_estoque,
+                    AVG(preco) as preco_medio,
+                    MIN(preco) as preco_minimo,
+                    MAX(preco) as preco_maximo
+                FROM produtos
+            `);
+
+            res.status(200).json(estatisticas[0]);
         } catch (error) {
-            errorHandler(res, error, 'Erro ao buscar estatísticas');
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao buscar estatísticas'
+            });
         }
     }
 }

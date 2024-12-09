@@ -10,7 +10,10 @@ const permissoesPorCargo = {
         'clientes',
         'checkin',
         'checkout',
-        'dashboard'
+        'dashboard',
+        'dashboard.basico',
+        'produtos.visualizar',
+        'relatorios'
     ],
     'Atendente': [
         'produtos',

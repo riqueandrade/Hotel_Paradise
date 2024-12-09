@@ -43,3 +43,12 @@ config.local.php
 # Arquivos de backup
 *.bak
 *.backup
+
+# Arquivos de cobertura de testes
+coverage/
+
+# Arquivos de relatórios de testes
+coverage/lcov-report/
+
+# Arquivos de testes
+tests/

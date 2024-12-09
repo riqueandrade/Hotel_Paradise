@@ -1,151 +1,201 @@
-const Quarto = require('../models/Quarto');
-const { validarNumeroQuarto } = require('../utils/validations');
-const errorHandler = require('../utils/errorHandler');
+const db = require('../database/db');
 
 class QuartoController {
-    // Listar todos os quartos
     static async listar(req, res) {
         try {
-            console.log('Iniciando listagem de quartos');
-            const quartos = await Quarto.buscarTodos();
-            console.log('Dados dos quartos:', quartos.map(q => ({
-                id: q.id,
-                numero: q.numero,
-                tipo: q.tipo,
-                preco_diaria: q.preco_diaria,
-                tipo_preco: typeof q.preco_diaria
-            })));
-            console.log(`${quartos.length} quartos encontrados`);
-            res.json(quartos);
+            const [quartos] = await db.query('SELECT * FROM quartos');
+            res.status(200).json(quartos);
         } catch (error) {
-            console.error('Erro ao listar quartos:', error);
-            errorHandler(res, error, 'Erro ao listar quartos');
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao buscar quartos'
+            });
         }
     }
 
-    // Buscar quarto por ID
+    static async buscarDisponiveis(req, res) {
+        try {
+            const { data_entrada, data_saida } = req.query;
+
+            if (!data_entrada || !data_saida) {
+                return res.status(400).json({ message: 'Datas não informadas' });
+            }
+
+            const [quartos] = await db.query(`
+                SELECT q.*
+                FROM quartos q
+                WHERE q.id NOT IN (
+                    SELECT r.quarto_id
+                    FROM reservas r
+                    WHERE (r.data_entrada <= ? AND r.data_saida >= ?)
+                    AND r.status NOT IN ('cancelada', 'finalizada')
+                )
+            `, [data_saida, data_entrada]);
+
+            res.status(200).json(quartos);
+        } catch (error) {
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao buscar quartos disponíveis'
+            });
+        }
+    }
+
     static async buscarPorId(req, res) {
         try {
-            const quarto = await Quarto.buscarPorId(req.params.id);
-            if (!quarto) {
+            const { id } = req.params;
+            const [quartos] = await db.query('SELECT * FROM quartos WHERE id = ?', [id]);
+
+            if (quartos.length === 0) {
                 return res.status(404).json({ message: 'Quarto não encontrado' });
             }
-            res.json(quarto);
+
+            res.status(200).json(quartos[0]);
         } catch (error) {
-            errorHandler(res, error, 'Erro ao buscar quarto');
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao buscar quarto'
+            });
         }
     }
 
-    // Criar novo quarto
     static async criar(req, res) {
         try {
-            const dados = req.body;
+            const { numero, tipo, preco_diaria } = req.body;
 
-            // Validação do número do quarto
-            if (!validarNumeroQuarto(dados.numero)) {
-                return res.status(400).json({ message: 'Número do quarto inválido' });
+            // Validações
+            if (!numero || !tipo || !preco_diaria) {
+                return res.status(400).json({ message: 'Dados inválidos' });
             }
 
-            // Validação do tipo
-            if (!['standard', 'luxo', 'suite'].includes(dados.tipo?.toLowerCase())) {
-                return res.status(400).json({ message: 'Tipo de quarto inválido' });
+            // Verifica se número já existe
+            const [quartoExistente] = await db.query('SELECT id FROM quartos WHERE numero = ?', [numero]);
+            if (quartoExistente.length > 0) {
+                return res.status(400).json({ message: 'Já existe um quarto com este número' });
             }
 
-            // Validação do status
-            if (dados.status && !['disponivel', 'ocupado', 'manutencao'].includes(dados.status)) {
-                return res.status(400).json({ message: 'Status inválido' });
-            }
+            // Insere quarto
+            const [result] = await db.query(
+                'INSERT INTO quartos (numero, tipo, preco_diaria) VALUES (?, ?, ?)',
+                [numero, tipo, preco_diaria]
+            );
 
-            const novoQuarto = await Quarto.criar(dados);
-            res.status(201).json(novoQuarto);
+            res.status(201).json({
+                message: 'Quarto criado com sucesso',
+                id: result.insertId
+            });
         } catch (error) {
-            errorHandler(res, error, 'Erro ao criar quarto');
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao criar quarto'
+            });
         }
     }
 
-    // Atualizar quarto
     static async atualizar(req, res) {
         try {
-            const id = req.params.id;
-            const dados = req.body;
+            const { id } = req.params;
+            const { numero, tipo, preco_diaria } = req.body;
 
-            // Validação do número do quarto
-            if (dados.numero && !validarNumeroQuarto(dados.numero)) {
-                return res.status(400).json({ message: 'Número do quarto inválido' });
+            // Verifica se quarto existe
+            const [quartoExistente] = await db.query('SELECT id FROM quartos WHERE id = ?', [id]);
+            if (quartoExistente.length === 0) {
+                return res.status(404).json({ message: 'Quarto não encontrado' });
             }
 
-            // Validação do tipo
-            if (dados.tipo && !['standard', 'luxo', 'suite'].includes(dados.tipo?.toLowerCase())) {
-                return res.status(400).json({ message: 'Tipo de quarto inválido' });
+            // Verifica se número já existe (se estiver sendo atualizado)
+            if (numero) {
+                const [numeroExistente] = await db.query(
+                    'SELECT id FROM quartos WHERE numero = ? AND id != ?',
+                    [numero, id]
+                );
+                if (numeroExistente.length > 0) {
+                    return res.status(400).json({ message: 'Já existe um quarto com este número' });
+                }
             }
 
-            // Validação do status
-            if (dados.status && !['disponivel', 'ocupado', 'manutencao'].includes(dados.status)) {
-                return res.status(400).json({ message: 'Status inválido' });
+            // Monta query de atualização
+            const campos = [];
+            const valores = [];
+            if (numero) {
+                campos.push('numero = ?');
+                valores.push(numero);
+            }
+            if (tipo) {
+                campos.push('tipo = ?');
+                valores.push(tipo);
+            }
+            if (preco_diaria) {
+                campos.push('preco_diaria = ?');
+                valores.push(preco_diaria);
             }
 
-            const quartoAtualizado = await Quarto.atualizar(id, dados);
-            res.json(quartoAtualizado);
+            if (campos.length === 0) {
+                return res.status(400).json({ message: 'Nenhum dado para atualizar' });
+            }
+
+            valores.push(id);
+            await db.query(
+                `UPDATE quartos SET ${campos.join(', ')} WHERE id = ?`,
+                valores
+            );
+
+            res.status(200).json({ message: 'Quarto atualizado com sucesso' });
         } catch (error) {
-            errorHandler(res, error, 'Erro ao atualizar quarto');
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao atualizar quarto'
+            });
         }
     }
 
-    // Excluir quarto
-    static async excluir(req, res) {
-        try {
-            await Quarto.excluir(req.params.id);
-            res.json({ message: 'Quarto excluído com sucesso' });
-        } catch (error) {
-            errorHandler(res, error, 'Erro ao excluir quarto');
-        }
-    }
-
-    // Atualizar status do quarto
     static async atualizarStatus(req, res) {
         try {
             const { id } = req.params;
             const { status } = req.body;
 
-            if (!['disponivel', 'ocupado', 'manutencao'].includes(status)) {
+            if (!status || !['disponivel', 'ocupado', 'manutencao'].includes(status)) {
                 return res.status(400).json({ message: 'Status inválido' });
             }
 
-            const quartoAtualizado = await Quarto.atualizarStatus(id, status);
-            res.json(quartoAtualizado);
-        } catch (error) {
-            errorHandler(res, error, 'Erro ao atualizar status do quarto');
-        }
-    }
-
-    // Buscar ocupação
-    static async buscarOcupacao(req, res) {
-        try {
-            const ocupacao = await Quarto.buscarOcupacao();
-            res.json(ocupacao);
-        } catch (error) {
-            errorHandler(res, error, 'Erro ao buscar ocupação');
-        }
-    }
-
-    // Buscar quartos disponíveis
-    static async buscarDisponiveis(req, res) {
-        try {
-            const { data_entrada, data_saida } = req.query;
-            
-            // Se não houver datas, retorna todos os quartos disponíveis
-            if (!data_entrada || !data_saida) {
-                const quartos = await Quarto.buscarTodos();
-                const disponiveis = quartos.filter(q => q.status === 'disponivel');
-                return res.json(disponiveis);
+            // Verifica se quarto existe
+            const [quartoExistente] = await db.query('SELECT id FROM quartos WHERE id = ?', [id]);
+            if (quartoExistente.length === 0) {
+                return res.status(404).json({ message: 'Quarto não encontrado' });
             }
 
-            // Se houver datas, busca quartos disponíveis no período
-            const quartos = await Quarto.buscarDisponiveis(data_entrada, data_saida);
-            res.json(quartos);
+            await db.query(
+                'UPDATE quartos SET status = ? WHERE id = ?',
+                [status, id]
+            );
+
+            res.status(200).json({ message: 'Status do quarto atualizado com sucesso' });
         } catch (error) {
-            console.error('Erro ao buscar quartos disponíveis:', error);
-            errorHandler(res, error, 'Erro ao buscar quartos disponíveis');
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao atualizar status do quarto'
+            });
+        }
+    }
+
+    static async buscarOcupacao(req, res) {
+        try {
+            const [estatisticas] = await db.query(`
+                SELECT 
+                    COUNT(*) as total_quartos,
+                    SUM(CASE WHEN status = 'ocupado' THEN 1 ELSE 0 END) as quartos_ocupados,
+                    SUM(CASE WHEN status = 'disponivel' THEN 1 ELSE 0 END) as quartos_disponiveis,
+                    SUM(CASE WHEN status = 'manutencao' THEN 1 ELSE 0 END) as quartos_manutencao,
+                    AVG(preco_diaria) as preco_medio_diaria
+                FROM quartos
+            `);
+
+            res.status(200).json(estatisticas[0]);
+        } catch (error) {
+            res.status(500).json({
+                error: 'Erro interno do servidor',
+                message: 'Erro ao buscar estatísticas de ocupação'
+            });
         }
     }
 }

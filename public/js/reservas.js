@@ -232,4 +232,124 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+// Função para atualizar a tabela de reservas
+function atualizarTabelaReservas(reservas) {
+    const tbody = document.querySelector('#reservasTableBody');
+    tbody.innerHTML = '';
+
+    if (reservas.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center">Nenhuma reserva encontrada</td>
+            </tr>
+        `;
+        return;
+    }
+
+    reservas.forEach(reserva => {
+        const dataEntrada = new Date(reserva.data_entrada).toLocaleDateString('pt-BR');
+        const dataSaida = new Date(reserva.data_saida).toLocaleDateString('pt-BR');
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${reserva.id}</td>
+            <td>${reserva.cliente_nome}</td>
+            <td>${reserva.quarto_numero}</td>
+            <td>${dataEntrada}</td>
+            <td>${dataSaida}</td>
+            <td>R$ ${reserva.valor_total.toFixed(2)}</td>
+            <td>
+                <span class="badge bg-${getStatusColor(reserva.status)}">${reserva.status}</span>
+            </td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary" onclick="visualizarReserva(${reserva.id})">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    ${getAcoesAdicionais(reserva)}
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Função para atualizar a paginação
+function atualizarPaginacao(totalPaginas, paginaAtual) {
+    const paginacao = document.querySelector('.pagination');
+    paginacao.innerHTML = '';
+
+    // Botão Anterior
+    const btnAnterior = document.createElement('li');
+    btnAnterior.className = `page-item ${paginaAtual === 1 ? 'disabled' : ''}`;
+    btnAnterior.innerHTML = `
+        <a class="page-link" href="#" onclick="carregarReservas(${paginaAtual - 1})">Anterior</a>
+    `;
+    paginacao.appendChild(btnAnterior);
+
+    // Páginas
+    for (let i = 1; i <= totalPaginas; i++) {
+        const item = document.createElement('li');
+        item.className = `page-item ${i === paginaAtual ? 'active' : ''}`;
+        item.innerHTML = `
+            <a class="page-link" href="#" onclick="carregarReservas(${i})">${i}</a>
+        `;
+        paginacao.appendChild(item);
+    }
+
+    // Botão Próximo
+    const btnProximo = document.createElement('li');
+    btnProximo.className = `page-item ${paginaAtual === totalPaginas ? 'disabled' : ''}`;
+    btnProximo.innerHTML = `
+        <a class="page-link" href="#" onclick="carregarReservas(${paginaAtual + 1})">Próximo</a>
+    `;
+    paginacao.appendChild(btnProximo);
+}
+
+// Função auxiliar para obter a cor do status
+function getStatusColor(status) {
+    const cores = {
+        'pendente': 'warning',
+        'confirmada': 'primary',
+        'checkin': 'success',
+        'checkout': 'info',
+        'cancelada': 'danger'
+    };
+    return cores[status] || 'secondary';
+}
+
+// Função auxiliar para obter ações adicionais baseadas no status
+function getAcoesAdicionais(reserva) {
+    let acoes = '';
+    
+    switch (reserva.status) {
+        case 'pendente':
+            acoes = `
+                <button class="btn btn-sm btn-outline-success" onclick="confirmarReserva(${reserva.id})">
+                    <i class="bi bi-check-lg"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="cancelarReserva(${reserva.id})">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            `;
+            break;
+        case 'confirmada':
+            acoes = `
+                <button class="btn btn-sm btn-outline-success" onclick="realizarCheckin(${reserva.id})">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                </button>
+            `;
+            break;
+        case 'checkin':
+            acoes = `
+                <button class="btn btn-sm btn-outline-info" onclick="realizarCheckout(${reserva.id})">
+                    <i class="bi bi-box-arrow-right"></i>
+                </button>
+            `;
+            break;
+    }
+    
+    return acoes;
 } 
