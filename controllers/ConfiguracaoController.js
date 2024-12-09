@@ -6,40 +6,53 @@ const path = require('path');
 class ConfiguracaoController {
     static async getConfiguracoes(req, res) {
         try {
-            const [configuracoes] = await db.query('SELECT * FROM configuracoes WHERE id = 1');
+            const [rows] = await db.query('SELECT * FROM configuracoes WHERE id = 1');
             
-            if (configuracoes.length === 0) {
+            if (!rows || rows.length === 0) {
                 // Se não existir, cria as configurações padrão
-                await db.query(`
-                    INSERT INTO configuracoes (
-                        nome_hotel, 
-                        endereco, 
-                        telefone, 
-                        email_contato, 
-                        notificacoes
-                    ) VALUES (?, ?, ?, ?, ?)`,
-                    [
-                        'Hotel Paradise',
-                        'Rua Principal, 123 - Centro',
-                        '(11) 1234-5678',
-                        'contato@hotelparadise.com',
-                        JSON.stringify({
-                            reservas: true,
-                            checkIn: true,
-                            checkOut: true,
-                            produtos: true
-                        })
-                    ]
+                const configPadrao = {
+                    nome_hotel: 'Hotel Paradise',
+                    endereco: 'Rua Principal, 123 - Centro',
+                    telefone: '(11) 1234-5678',
+                    email_contato: 'contato@hotelparadise.com',
+                    notificacoes: JSON.stringify({
+                        reservas: true,
+                        checkIn: true,
+                        checkOut: true,
+                        produtos: true
+                    })
+                };
+
+                const [result] = await db.query(`
+                    INSERT INTO configuracoes SET ?`, [configPadrao]
                 );
                 
-                const [novasConfiguracoes] = await db.query('SELECT * FROM configuracoes WHERE id = 1');
-                return res.json(novasConfiguracoes[0]);
+                const [novasConfiguracoes] = await db.query('SELECT * FROM configuracoes WHERE id = ?', [result.insertId]);
+                return res.json(novasConfiguracoes[0] || configPadrao);
             }
 
-            res.json(configuracoes[0]);
+            // Garante que notificacoes seja um objeto JSON válido
+            const config = rows[0];
+            if (config.notificacoes && typeof config.notificacoes === 'string') {
+                try {
+                    config.notificacoes = JSON.parse(config.notificacoes);
+                } catch (e) {
+                    config.notificacoes = {
+                        reservas: true,
+                        checkIn: true,
+                        checkOut: true,
+                        produtos: true
+                    };
+                }
+            }
+
+            res.json(config);
         } catch (error) {
             console.error('Erro ao buscar configurações:', error);
-            res.status(500).json({ error: 'Erro ao buscar configurações' });
+            res.status(500).json({ 
+                error: 'Erro ao buscar configurações',
+                details: error.message 
+            });
         }
     }
 

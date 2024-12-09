@@ -5,6 +5,35 @@ document.addEventListener('DOMContentLoaded', () => {
     inicializarEventos();
 });
 
+// Função para mostrar notificações toast
+function showToast(message, type = 'info') {
+    const toastContainer = document.querySelector('.toast-container');
+    const toastId = `toast-${Date.now()}`;
+    
+    const toastHTML = `
+        <div id="${toastId}" class="toast align-items-center text-white bg-${type}" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+    
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    
+    toast.show();
+    
+    // Remove o elemento após ser ocultado
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+
 function inicializarEventos() {
     // Botão Salvar
     document.getElementById('btnSalvar').addEventListener('click', salvarConfiguracoes);
@@ -20,53 +49,76 @@ function inicializarEventos() {
 // Funções de API
 async function carregarConfiguracoes() {
     try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/html/login.html';
+            return;
+        }
+
         // Carregar dados do usuário
         const responseUsuario = await fetch('/api/usuarios/perfil', {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
-        if (responseUsuario.ok) {
-            const usuario = await responseUsuario.json();
-            document.getElementById('nome').value = usuario.nome;
-            document.getElementById('email').value = usuario.email;
+        if (!responseUsuario.ok) {
+            if (responseUsuario.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/html/login.html';
+                return;
+            }
+            throw new Error('Erro ao carregar dados do usuário');
         }
+
+        const usuario = await responseUsuario.json();
+        document.getElementById('nome').value = usuario.nome || '';
+        document.getElementById('email').value = usuario.email || '';
 
         // Carregar configurações do sistema
         const responseConfig = await fetch('/api/configuracoes', {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
-        if (responseConfig.ok) {
-            const config = await responseConfig.json();
-            document.getElementById('nome_hotel').value = config.nome_hotel;
-            document.getElementById('endereco').value = config.endereco;
-            document.getElementById('telefone').value = config.telefone;
-            document.getElementById('email_contato').value = config.email_contato;
-
-            if (config.notificacoes) {
-                const notificacoes = typeof config.notificacoes === 'string' 
-                    ? JSON.parse(config.notificacoes) 
-                    : config.notificacoes;
-
-                document.getElementById('notifReservas').checked = notificacoes.reservas;
-                document.getElementById('notifCheckIn').checked = notificacoes.checkIn;
-                document.getElementById('notifCheckOut').checked = notificacoes.checkOut;
-                document.getElementById('notifProdutos').checked = notificacoes.produtos;
+        if (!responseConfig.ok) {
+            if (responseConfig.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/html/login.html';
+                return;
             }
+            throw new Error('Erro ao carregar configurações do sistema');
+        }
 
-            // Atualizar data do último backup
-            if (config.ultimo_backup) {
-                document.getElementById('ultimoBackup').textContent = 
-                    new Date(config.ultimo_backup).toLocaleString();
-            }
+        const config = await responseConfig.json();
+        
+        // Atualiza os campos do formulário
+        document.getElementById('nome_hotel').value = config.nome_hotel || '';
+        document.getElementById('endereco').value = config.endereco || '';
+        document.getElementById('telefone').value = config.telefone || '';
+        document.getElementById('email_contato').value = config.email_contato || '';
+
+        // Atualiza as notificações
+        if (config.notificacoes) {
+            const notificacoes = typeof config.notificacoes === 'string' 
+                ? JSON.parse(config.notificacoes) 
+                : config.notificacoes;
+
+            document.getElementById('notifReservas').checked = notificacoes.reservas || false;
+            document.getElementById('notifCheckIn').checked = notificacoes.checkIn || false;
+            document.getElementById('notifCheckOut').checked = notificacoes.checkOut || false;
+            document.getElementById('notifProdutos').checked = notificacoes.produtos || false;
+        }
+
+        // Atualiza a data do último backup
+        if (config.ultimo_backup) {
+            document.getElementById('ultimoBackup').textContent = 
+                new Date(config.ultimo_backup).toLocaleString();
         }
     } catch (error) {
-        console.error('Erro ao carregar configurações:', error);
-        showToast('Erro ao carregar configurações', 'error');
+        console.error('Erro:', error);
+        showToast(error.message || 'Erro ao carregar configurações', 'danger');
     }
 }
 
@@ -94,59 +146,70 @@ async function salvarConfiguracoes() {
             body: JSON.stringify(dadosConfig)
         });
 
-        if (response.ok) {
-            showToast('Configurações salvas com sucesso', 'success');
-            await carregarConfiguracoes(); // Recarrega as configurações
-        } else {
+        if (!response.ok) {
             throw new Error('Erro ao salvar configurações');
         }
+
+        showToast('Configurações salvas com sucesso', 'success');
+        await carregarConfiguracoes();
     } catch (error) {
-        console.error('Erro ao salvar configurações:', error);
-        showToast('Erro ao salvar configurações', 'error');
+        console.error('Erro:', error);
+        showToast(error.message || 'Erro ao salvar configurações', 'danger');
     }
 }
 
-// Funções de Backup
 async function fazerBackup() {
     try {
-        const response = await fetch('/api/backup', {
+        const response = await fetch('/api/configuracoes/backup', {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         });
 
-        if (!response.ok) throw new Error('Erro ao gerar backup');
+        if (!response.ok) {
+            throw new Error('Erro ao gerar backup');
+        }
 
+        // Pega o nome do arquivo do header ou gera um nome padrão
+        const filename = response.headers.get('Content-Disposition')?.split('filename=')[1] || 
+            `backup_${new Date().toISOString().replace(/[:.]/g, '-')}.sql`;
+
+        // Cria um blob com o conteúdo do backup
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
+        
+        // Cria um link temporário para download
         const a = document.createElement('a');
         a.href = url;
-        a.download = `backup_${new Date().toISOString().split('T')[0]}.sql`;
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
-        document.body.removeChild(a);
+        
+        // Limpa o objeto URL e remove o link
         window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
 
-        document.getElementById('ultimoBackup').textContent = new Date().toLocaleString();
-        mostrarNotificacao('Backup realizado com sucesso', 'success');
+        showToast('Backup realizado com sucesso', 'success');
+        await carregarConfiguracoes(); // Atualiza a data do último backup
     } catch (error) {
-        console.error('Erro ao fazer backup:', error);
-        mostrarNotificacao('Erro ao fazer backup', 'danger');
+        console.error('Erro:', error);
+        showToast(error.message || 'Erro ao fazer backup', 'danger');
     }
 }
 
 async function restaurarBackup() {
+    const fileInput = document.getElementById('arquivoBackup');
+    if (!fileInput.files[0]) {
+        showToast('Selecione um arquivo de backup', 'warning');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('backup', fileInput.files[0]);
+
     try {
-        const arquivo = document.getElementById('arquivoBackup').files[0];
-        if (!arquivo) {
-            mostrarNotificacao('Selecione um arquivo de backup', 'warning');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('backup', arquivo);
-
-        const response = await fetch('/api/backup/restaurar', {
+        showToast('Restaurando backup...', 'info');
+        const response = await fetch('/api/configuracoes/backup/restaurar', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -154,13 +217,30 @@ async function restaurarBackup() {
             body: formData
         });
 
-        if (!response.ok) throw new Error('Erro ao restaurar backup');
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'Erro ao restaurar backup');
+        }
 
-        mostrarNotificacao('Backup restaurado com sucesso', 'success');
-        setTimeout(() => window.location.reload(), 2000);
+        const data = await response.json();
+        showToast(data.message || 'Backup restaurado com sucesso', 'success');
+        
+        // Limpa o input de arquivo
+        fileInput.value = '';
+        
+        // Atualiza as configurações após restaurar o backup
+        await carregarConfiguracoes();
     } catch (error) {
-        console.error('Erro ao restaurar backup:', error);
-        mostrarNotificacao('Erro ao restaurar backup', 'danger');
+        console.error('Erro:', error);
+        showToast(error.message || 'Erro ao restaurar backup', 'danger');
+    }
+}
+
+function verificarToken() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/html/login.html';
+        return;
     }
 }
 
@@ -175,39 +255,5 @@ function validarSenha() {
         } else {
             document.getElementById('confirmarSenha').setCustomValidity('');
         }
-    }
-}
-
-function mostrarNotificacao(mensagem, tipo) {
-    const toastContainer = document.querySelector('.toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast align-items-center text-white bg-${tipo} border-0`;
-    toast.setAttribute('role', 'alert');
-    toast.setAttribute('aria-live', 'assertive');
-    toast.setAttribute('aria-atomic', 'true');
-
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">
-                ${mensagem}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    `;
-
-    toastContainer.appendChild(toast);
-    const bsToast = new bootstrap.Toast(toast);
-    bsToast.show();
-
-    toast.addEventListener('hidden.bs.toast', () => {
-        toastContainer.removeChild(toast);
-    });
-}
-
-function verificarToken() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/html/login.html';
-        return;
     }
 } 

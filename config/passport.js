@@ -30,14 +30,8 @@ passport.use(new GoogleStrategy({
             return done(null, users[0]);
         }
 
-        // Busca o cargo de recepcionista
-        const [cargos] = await db.query('SELECT id FROM cargos WHERE nome = ?', ['Recepcionista']);
-        
-        if (!cargos || cargos.length === 0) {
-            return done(new Error('Cargo Recepcionista não encontrado'));
-        }
-
-        const cargoId = cargos[0].id;
+        // Usa o ID 3 que é o cargo de Recepcionista (definido no dados_iniciais.sql)
+        const cargoId = 3;
 
         // Gera uma senha aleatória
         const randomPassword = Math.random().toString(36).slice(-8);
