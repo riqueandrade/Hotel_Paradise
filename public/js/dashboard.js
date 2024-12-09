@@ -9,9 +9,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
         // Verifica se o token é válido
-        const response = await fetch('/api/auth/verify', {
+        const response = await fetch('/api/auth/verificar', {
+            method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
         });
 
@@ -20,9 +22,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
         const data = await response.json();
+        console.log('Dados do usuário:', data);
         
         // Atualiza o nome do usuário
-        document.getElementById('userName').textContent = data.user.nome;
+        if (data.usuario && data.usuario.nome) {
+            document.getElementById('userName').textContent = data.usuario.nome;
+        }
 
         // Inicializa os modais
         const modals = {
