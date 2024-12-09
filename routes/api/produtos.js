@@ -7,9 +7,9 @@ const { authMiddleware, authorize } = require('../../middlewares/auth');
 router.use(authMiddleware);
 
 // Rotas de produtos com autorização específica
-router.get('/', authorize(['produtos']), ProdutoController.listar);
+router.get('/', authorize(['produtos', 'consumos']), ProdutoController.listar);
 router.get('/estatisticas', authorize(['produtos', 'relatorios']), ProdutoController.buscarEstatisticas);
-router.get('/:id', authorize(['produtos']), ProdutoController.buscarPorId);
+router.get('/:id', authorize(['produtos', 'consumos']), ProdutoController.buscarPorId);
 router.post('/', authorize(['produtos']), ProdutoController.criar);
 router.put('/:id', authorize(['produtos']), ProdutoController.atualizar);
 router.delete('/:id', authorize(['produtos']), ProdutoController.excluir);

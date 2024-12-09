@@ -5,22 +5,35 @@ const permissoesPorCargo = {
     'Administrador': ['*'], // Acesso total
     'Gerente': [
         'reservas', 'quartos', 'funcionarios', 'relatorios', 'tipos_quarto',
-        'clientes', 'produtos', 'configuracoes', 'dashboard'
+        'clientes', 'produtos', 'configuracoes', 'dashboard', 'consumos'
     ],
     'Recepcionista': [
-        'reservas', 'quartos', 'clientes', 'produtos', 'dashboard'
-    ],
-    'Camareira': [
-        'quartos', 'dashboard'
-    ],
-    'Financeiro': [
-        'pagamentos', 'relatorios', 'produtos', 'dashboard'
-    ],
-    'Manutenção': [
-        'quartos', 'dashboard'
+        'reservas',      // Gerenciar reservas
+        'quartos',       // Ver disponibilidade de quartos
+        'clientes',      // Cadastrar e gerenciar clientes
+        'dashboard',     // Ver dashboard básico
+        'checkin',       // Realizar check-in
+        'checkout'       // Realizar check-out
     ],
     'Atendente': [
-        'produtos', 'consumos', 'dashboard'
+        'produtos',      // Gerenciar produtos do hotel
+        'consumos',      // Registrar consumos dos hóspedes
+        'dashboard',     // Ver dashboard básico
+        'clientes'       // Apenas visualizar clientes
+    ],
+    'Camareira': [
+        'quartos',       // Ver status dos quartos
+        'dashboard'      // Ver dashboard básico
+    ],
+    'Financeiro': [
+        'pagamentos',    // Gerenciar pagamentos
+        'relatorios',    // Ver relatórios financeiros
+        'produtos',      // Gerenciar preços
+        'dashboard'      // Ver dashboard completo
+    ],
+    'Manutenção': [
+        'quartos',       // Ver e atualizar status de manutenção
+        'dashboard'      // Ver dashboard básico
     ]
 };
 

@@ -12,8 +12,8 @@ router.get('/estatisticas', authorize(['reservas', 'relatorios']), ReservaContro
 router.get('/:id', authorize(['reservas']), ReservaController.buscarPorId);
 router.post('/', authorize(['reservas']), ReservaController.criar);
 router.put('/:id', authorize(['reservas']), ReservaController.atualizar);
-router.post('/:id/checkin', authorize(['reservas']), ReservaController.realizarCheckin);
-router.post('/:id/checkout', authorize(['reservas']), ReservaController.realizarCheckout);
+router.post('/:id/checkin', authorize(['checkin', 'reservas']), ReservaController.realizarCheckin);
+router.post('/:id/checkout', authorize(['checkout', 'reservas']), ReservaController.realizarCheckout);
 router.post('/:id/cancelar', authorize(['reservas']), ReservaController.cancelar);
 
 module.exports = router; 
