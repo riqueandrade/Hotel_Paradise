@@ -5,6 +5,7 @@ const path = require('path');
 const passport = require('passport');
 require('dotenv').config();
 require('./config/passport');
+const cors = require('cors');
 
 const app = express();
 
@@ -22,14 +23,17 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Middlewares
+app.use(cors());
+
 // Arquivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rotas da API
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/auth', require('./routes/api/auth'));
+app.use('/api/quartos', require('./routes/api/quartos'));
 app.use('/api/produtos', require('./routes/api/produtos'));
-app.use('/api', require('./routes/api/index'));
+app.use('/api/relatorios', require('./routes/api/relatorios'));
 
 // Rota principal
 app.get('/', (req, res) => {
