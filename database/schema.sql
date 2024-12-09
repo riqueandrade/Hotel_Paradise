@@ -102,10 +102,11 @@ CREATE TABLE IF NOT EXISTS reservas (
 CREATE TABLE IF NOT EXISTS produtos (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(100) NOT NULL,
+    categoria VARCHAR(20) NOT NULL CHECK (categoria IN ('bebidas', 'alimentos', 'higiene', 'outros')),
     descricao TEXT,
     preco DECIMAL(10,2) NOT NULL,
-    quantidade_estoque INT DEFAULT 0,
-    quantidade_minima INT DEFAULT 5,
+    estoque INT DEFAULT 0,
+    estoque_minimo INT DEFAULT 5,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

@@ -28,6 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Rotas da API
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/produtos', require('./routes/api/produtos'));
 app.use('/api', require('./routes/api/index'));
 
 // Rota principal

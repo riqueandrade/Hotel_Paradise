@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - Hotel Paradise</title>
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Hotel Paradise</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/html/dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+            <li><a href="/html/reservas.html"><i class="bi bi-calendar-check"></i> Reservas</a></li>
+            <li><a href="/html/clientes.html"><i class="bi bi-people"></i> Clientes</a></li>
+            <li><a href="/html/quartos.html"><i class="bi bi-door-open"></i> Quartos</a></li>
+            <li><a href="/html/produtos.html"><i class="bi bi-box-seam"></i> Produtos</a></li>
+            <li><a href="/html/relatorios.html" class="active"><i class="bi bi-graph-up"></i> Relatórios</a></li>
+            <li><a href="/html/configuracoes.html"><i class="bi bi-gear"></i> Configurações</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3">Relatórios</h1>
+                <p class="text-muted">Visualize e exporte relatórios do hotel</p>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-outline-secondary" id="btnImprimir">
+                    <i class="bi bi-printer"></i> Imprimir
+                </button>
+                <button class="btn btn-outline-secondary" id="btnExportar">
+                    <i class="bi bi-download"></i> Exportar
+                </button>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo de Relatório</label>
+                        <select class="form-select" id="tipoRelatorio">
+                            <option value="ocupacao">Ocupação</option>
+                            <option value="financeiro">Financeiro</option>
+                            <option value="produtos">Produtos</option>
+                            <option value="clientes">Clientes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Período</label>
+                        <select class="form-select" id="periodoRelatorio">
+                            <option value="hoje">Hoje</option>
+                            <option value="semana">Última Semana</option>
+                            <option value="mes">Último Mês</option>
+                            <option value="ano">Último Ano</option>
+                            <option value="personalizado">Personalizado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Formato</label>
+                        <select class="form-select" id="formatoRelatorio">
+                            <option value="tabela">Tabela</option>
+                            <option value="grafico">Gráfico</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datas Personalizadas (inicialmente oculto) -->
+        <div class="card mb-4 d-none" id="datasPersonalizadas">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Data Inicial</label>
+                        <input type="date" class="form-control" id="dataInicial">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Data Final</label>
+                        <input type="date" class="form-control" id="dataFinal">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área do Relatório -->
+        <div class="card">
+            <div class="card-body">
+                <!-- Área de Gráfico -->
+                <div id="areaGrafico" class="mb-4" style="height: 400px;"></div>
+
+                <!-- Área de Tabela -->
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light" id="relatorioHeader">
+                            <!-- Cabeçalho dinâmico baseado no tipo de relatório -->
+                        </thead>
+                        <tbody id="relatorioBody">
+                            <!-- Conteúdo dinâmico baseado no tipo de relatório -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/relatorios.js"></script>
+</body>
+</html> 

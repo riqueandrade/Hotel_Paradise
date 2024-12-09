@@ -27,11 +27,13 @@ INSERT INTO reservas (cliente_id, quarto_id, data_entrada, data_saida, status, v
 (3, 7, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 'confirmada', 500.00, 1000.00);
 
 -- Inserir alguns produtos
-INSERT INTO produtos (nome, descricao, preco, quantidade_estoque, quantidade_minima) VALUES
-('Água Mineral', 'Garrafa 500ml', 5.00, 100, 20),
-('Refrigerante', 'Lata 350ml', 8.00, 80, 15),
-('Chocolate', 'Barra 90g', 12.00, 50, 10),
-('Vinho', 'Garrafa 750ml', 89.90, 30, 5);
+INSERT INTO produtos (nome, categoria, descricao, preco, estoque, estoque_minimo) VALUES
+('Água Mineral 500ml', 'bebidas', 'Água mineral sem gás', 5.00, 100, 20),
+('Refrigerante Lata', 'bebidas', 'Refrigerante em lata 350ml', 8.00, 80, 15),
+('Chocolate', 'alimentos', 'Barra de chocolate 90g', 12.00, 50, 10),
+('Sabonete', 'higiene', 'Sabonete neutro', 4.50, 60, 12),
+('Toalha de Rosto', 'outros', 'Toalha de rosto 100% algodão', 25.00, 30, 5),
+('Vinho', 'bebidas', 'Garrafa 750ml', 89.90, 30, 5);
 
 -- Inserir alguns consumos
 INSERT INTO consumos (reserva_id, produto_id, quantidade, valor_unitario, valor_total) VALUES

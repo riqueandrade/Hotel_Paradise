@@ -123,13 +123,16 @@ function renderizarProdutos(produtos) {
     }
 
     tbody.innerHTML = produtos.map(produto => {
+        const preco = parseFloat(produto.preco) || 0;
+        
         const status = getStatusEstoque(produto.estoque, produto.estoque_minimo);
+        
         return `
             <tr>
                 <td>${produto.id}</td>
                 <td>${produto.nome}</td>
                 <td><span class="badge bg-${produto.categoria}">${formatarCategoria(produto.categoria)}</span></td>
-                <td>R$ ${produto.preco.toFixed(2)}</td>
+                <td>R$ ${preco.toFixed(2)}</td>
                 <td>${produto.estoque}</td>
                 <td><span class="badge bg-${status.cor}">${status.texto}</span></td>
                 <td>
