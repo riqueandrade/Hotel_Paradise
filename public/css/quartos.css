@@ -13,31 +13,39 @@ body {
     vertical-align: middle;
 }
 
-/* Status badges */
-.badge-disponivel {
-    background-color: #198754;
+/* Badges */
+.badge {
+    font-size: 0.875rem;
+    padding: 0.5em 0.75em;
+    font-weight: 500;
 }
 
-.badge-ocupado {
-    background-color: #dc3545;
+/* Cores personalizadas para badges */
+.bg-orange {
+    background-color: #fd7e14 !important;
+    color: #fff !important;
 }
 
-.badge-manutencao {
-    background-color: #ffc107;
-    color: #000;
+/* Ajustes para badges padrão do Bootstrap */
+.bg-success {
+    color: #fff !important;
 }
 
-/* Tipo badges */
-.badge-standard {
-    background-color: #0d6efd;
+.bg-danger {
+    color: #fff !important;
 }
 
-.badge-luxo {
-    background-color: #6f42c1;
+.bg-warning {
+    color: #000 !important;
 }
 
-.badge-suite {
-    background-color: #fd7e14;
+.bg-primary {
+    color: #fff !important;
+}
+
+.bg-info {
+    color: #fff !important;
+    background-color: #6f42c1 !important;
 }
 
 /* Botões de ação */

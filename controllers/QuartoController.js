@@ -6,9 +6,19 @@ class QuartoController {
     // Listar todos os quartos
     static async listar(req, res) {
         try {
+            console.log('Iniciando listagem de quartos');
             const quartos = await Quarto.buscarTodos();
+            console.log('Dados dos quartos:', quartos.map(q => ({
+                id: q.id,
+                numero: q.numero,
+                tipo: q.tipo,
+                preco_diaria: q.preco_diaria,
+                tipo_preco: typeof q.preco_diaria
+            })));
+            console.log(`${quartos.length} quartos encontrados`);
             res.json(quartos);
         } catch (error) {
+            console.error('Erro ao listar quartos:', error);
             errorHandler(res, error, 'Erro ao listar quartos');
         }
     }

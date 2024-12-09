@@ -23,19 +23,30 @@ document.addEventListener('DOMContentLoaded', () => {
 async function carregarQuartos(filtros = {}) {
     try {
         const queryParams = new URLSearchParams(filtros);
-        const response = await fetch(`/api/quartos?${queryParams}`, {
+        const url = `/api/quartos?${queryParams}`;
+        console.log('Tentando carregar quartos:', url);
+        
+        const token = localStorage.getItem('token');
+        console.log('Token presente:', !!token);
+        
+        const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         
-        if (!response.ok) throw new Error('Erro ao carregar quartos');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao carregar quartos');
+        }
         
         quartos = await response.json();
+        console.log('Quartos carregados:', quartos.length);
         renderizarQuartos(quartos);
         atualizarEstatisticas();
     } catch (error) {
-        mostrarNotificacao('Erro ao carregar quartos', 'danger');
+        console.error('Erro detalhado:', error);
+        mostrarNotificacao(`Erro ao carregar quartos: ${error.message}`, 'danger');
     }
 }
 
@@ -137,31 +148,52 @@ function renderizarQuartos(quartos) {
         return;
     }
 
-    tbody.innerHTML = quartos.map(quarto => `
-        <tr>
-            <td>${quarto.numero}</td>
-            <td><span class="badge badge-${quarto.tipo.toLowerCase()}">${formatarTipo(quarto.tipo)}</span></td>
-            <td><span class="badge badge-${quarto.status.toLowerCase()}">${formatarStatus(quarto.status)}</span></td>
-            <td>${quarto.andar}º</td>
-            <td>R$ ${quarto.preco_diaria.toFixed(2)}</td>
-            <td>${formatarData(quarto.updated_at)}</td>
-            <td>
-                <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-primary" onclick="editarQuarto(${quarto.id})" title="Editar">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-info" onclick="alterarStatus(${quarto.id})" title="Alterar Status">
-                        <i class="bi bi-arrow-repeat"></i>
-                    </button>
-                    ${quarto.status !== 'ocupado' ? `
-                        <button class="btn btn-sm btn-outline-danger" onclick="excluirQuarto(${quarto.id})" title="Excluir">
-                            <i class="bi bi-trash"></i>
+    tbody.innerHTML = quartos.map(quarto => {
+        // Converte o preço para número e trata valores inválidos
+        const preco = parseFloat(quarto.preco_diaria) || 0;
+        
+        // Define as cores dos badges
+        const statusColors = {
+            'disponivel': 'success',
+            'ocupado': 'danger',
+            'manutencao': 'warning'
+        };
+
+        const tipoColors = {
+            'standard': 'primary',
+            'luxo': 'info',
+            'suite': 'orange'
+        };
+
+        const statusColor = statusColors[quarto.status?.toLowerCase()] || 'secondary';
+        const tipoColor = tipoColors[quarto.tipo?.toLowerCase()] || 'secondary';
+        
+        return `
+            <tr>
+                <td>${quarto.numero}</td>
+                <td><span class="badge bg-${tipoColor}">${formatarTipo(quarto.tipo)}</span></td>
+                <td><span class="badge bg-${statusColor}">${formatarStatus(quarto.status)}</span></td>
+                <td>${quarto.andar}º</td>
+                <td>R$ ${preco.toFixed(2)}</td>
+                <td>${formatarData(quarto.updated_at)}</td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="editarQuarto(${quarto.id})" title="Editar">
+                            <i class="bi bi-pencil"></i>
                         </button>
-                    ` : ''}
-                </div>
-            </td>
-        </tr>
-    `).join('');
+                        <button class="btn btn-sm btn-outline-info" onclick="alterarStatus(${quarto.id})" title="Alterar Status">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </button>
+                        ${quarto.status !== 'ocupado' ? `
+                            <button class="btn btn-sm btn-outline-danger" onclick="excluirQuarto(${quarto.id})" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
 function aplicarFiltros() {
@@ -255,16 +287,16 @@ function formatarStatus(status) {
         'ocupado': 'Ocupado',
         'manutencao': 'Manutenção'
     };
-    return statusMap[status] || status;
+    return statusMap[status.toLowerCase()] || status;
 }
 
 function formatarTipo(tipo) {
-    const tipoMap = {
+    const tipos = {
         'standard': 'Standard',
         'luxo': 'Luxo',
         'suite': 'Suíte'
     };
-    return tipoMap[tipo.toLowerCase()] || tipo;
+    return tipos[tipo.toLowerCase()] || tipo;
 }
 
 function formatarData(data) {
@@ -280,20 +312,10 @@ function formatarData(data) {
 function verificarToken() {
     const token = localStorage.getItem('token');
     if (!token) {
-        window.location.href = '/html/login.html';
-        return;
+        window.location.href = '/login.html';
+        return false;
     }
-
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const userName = document.getElementById('userName');
-        if (userName) {
-            userName.textContent = payload.nome;
-        }
-    } catch (error) {
-        console.error('Erro ao decodificar token:', error);
-        window.location.href = '/html/login.html';
-    }
+    return true;
 }
 
 function logout() {
