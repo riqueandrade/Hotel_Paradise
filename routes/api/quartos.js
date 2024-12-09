@@ -1,21 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const QuartoController = require('../../controllers/QuartoController');
-const verifyToken = require('../../middlewares/auth');
+const { authMiddleware, authorize } = require('../../middlewares/auth');
 
-// Rota de teste
-router.get('/teste', (req, res) => {
-    res.json({ message: 'Rota de teste funcionando' });
-});
+// Aplica autenticação em todas as rotas
+router.use(authMiddleware);
 
-// Rotas de quartos
-router.get('/disponiveis', verifyToken, QuartoController.buscarDisponiveis.bind(QuartoController));
-router.get('/', verifyToken, QuartoController.listar.bind(QuartoController));
-router.get('/ocupacao', verifyToken, QuartoController.buscarOcupacao.bind(QuartoController));
-router.get('/:id', verifyToken, QuartoController.buscarPorId.bind(QuartoController));
-router.post('/', verifyToken, QuartoController.criar.bind(QuartoController));
-router.put('/:id', verifyToken, QuartoController.atualizar.bind(QuartoController));
-router.delete('/:id', verifyToken, QuartoController.excluir.bind(QuartoController));
-router.patch('/:id/status', verifyToken, QuartoController.atualizarStatus.bind(QuartoController));
+// Rotas de quartos com autorização específica
+router.get('/disponiveis', authorize(['reservas', 'quartos']), QuartoController.buscarDisponiveis);
+router.get('/', authorize(['quartos']), QuartoController.listar);
+router.get('/ocupacao', authorize(['quartos', 'relatorios']), QuartoController.buscarOcupacao);
+router.get('/:id', authorize(['quartos']), QuartoController.buscarPorId);
+router.post('/', authorize(['quartos']), QuartoController.criar);
+router.put('/:id', authorize(['quartos']), QuartoController.atualizar);
+router.delete('/:id', authorize(['quartos']), QuartoController.excluir);
+router.patch('/:id/status', authorize(['quartos']), QuartoController.atualizarStatus);
 
 module.exports = router; 

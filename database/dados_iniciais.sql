@@ -16,7 +16,11 @@ DELETE FROM cargos;
 INSERT INTO cargos (id, nome, descricao) VALUES
 (1, 'Administrador', 'Acesso total ao sistema'),
 (2, 'Gerente', 'Gerenciamento de reservas e funcionários'),
-(3, 'Recepcionista', 'Atendimento aos clientes e gestão de reservas');
+(3, 'Recepcionista', 'Atendimento aos clientes e gestão de reservas'),
+(4, 'Camareira', 'Gerenciamento de limpeza e manutenção dos quartos'),
+(5, 'Financeiro', 'Gerenciamento de pagamentos e relatórios financeiros'),
+(6, 'Manutenção', 'Gerenciamento de manutenção do hotel'),
+(7, 'Atendente', 'Gerenciamento de consumos e produtos');
 
 -- Inserir usuário administrador padrão (senha: admin123)
 INSERT INTO usuarios (nome, email, senha, cargo_id) VALUES

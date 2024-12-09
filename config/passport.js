@@ -9,7 +9,10 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
     try {
-        const [users] = await db.query('SELECT * FROM usuarios WHERE id = ?', [id]);
+        const [users] = await db.query(
+            'SELECT u.*, c.nome as cargo_nome FROM usuarios u JOIN cargos c ON u.cargo_id = c.id WHERE u.id = ?',
+            [id]
+        );
         done(null, users[0]);
     } catch (error) {
         done(error, null);
@@ -23,7 +26,10 @@ passport.use(new GoogleStrategy({
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         // Verifica se o usuário já existe
-        const [users] = await db.query('SELECT * FROM usuarios WHERE google_id = ?', [profile.id]);
+        const [users] = await db.query(
+            'SELECT u.*, c.nome as cargo_nome FROM usuarios u JOIN cargos c ON u.cargo_id = c.id WHERE u.google_id = ?',
+            [profile.id]
+        );
         
         if (users.length > 0) {
             // Usuário já existe
@@ -44,7 +50,12 @@ passport.use(new GoogleStrategy({
             [profile.displayName, profile.emails[0].value, profile.id, cargoId, hashedPassword]
         );
 
-        const [newUser] = await db.query('SELECT * FROM usuarios WHERE id = ?', [result.insertId]);
+        // Busca o usuário recém-criado com o nome do cargo
+        const [newUser] = await db.query(
+            'SELECT u.*, c.nome as cargo_nome FROM usuarios u JOIN cargos c ON u.cargo_id = c.id WHERE u.id = ?',
+            [result.insertId]
+        );
+
         done(null, newUser[0]);
     } catch (error) {
         console.error('Erro na autenticação Google:', error);

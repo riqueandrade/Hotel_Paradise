@@ -1,16 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const ReservaController = require('../../controllers/ReservaController');
-const verifyToken = require('../../middlewares/auth');
+const { authMiddleware, authorize } = require('../../middlewares/auth');
 
-// Rotas de reservas
-router.get('/', verifyToken, ReservaController.listar);
-router.get('/estatisticas', verifyToken, ReservaController.buscarEstatisticas);
-router.get('/:id', verifyToken, ReservaController.buscarPorId);
-router.post('/', verifyToken, ReservaController.criar);
-router.put('/:id', verifyToken, ReservaController.atualizar);
-router.post('/:id/checkin', verifyToken, ReservaController.realizarCheckin);
-router.post('/:id/checkout', verifyToken, ReservaController.realizarCheckout);
-router.post('/:id/cancelar', verifyToken, ReservaController.cancelar);
+// Aplica autenticação em todas as rotas
+router.use(authMiddleware);
+
+// Rotas de reservas com autorização específica
+router.get('/', authorize(['reservas']), ReservaController.listar);
+router.get('/estatisticas', authorize(['reservas', 'relatorios']), ReservaController.buscarEstatisticas);
+router.get('/:id', authorize(['reservas']), ReservaController.buscarPorId);
+router.post('/', authorize(['reservas']), ReservaController.criar);
+router.put('/:id', authorize(['reservas']), ReservaController.atualizar);
+router.post('/:id/checkin', authorize(['reservas']), ReservaController.realizarCheckin);
+router.post('/:id/checkout', authorize(['reservas']), ReservaController.realizarCheckout);
+router.post('/:id/cancelar', authorize(['reservas']), ReservaController.cancelar);
 
 module.exports = router; 

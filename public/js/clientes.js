@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
         // Verifica se o token é válido
-        const response = await fetch('/api/auth/verificar', {
+        const response = await fetch('/api/auth/verify', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,

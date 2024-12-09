@@ -1,14 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const ClienteController = require('../../controllers/ClienteController');
-const verifyToken = require('../../middlewares/auth');
+const { authMiddleware, authorize } = require('../../middlewares/auth');
 
-// Rotas de clientes
-router.get('/', verifyToken, ClienteController.listar);
-router.get('/:id', verifyToken, ClienteController.buscarPorId);
-router.post('/', verifyToken, ClienteController.criar);
-router.put('/:id', verifyToken, ClienteController.atualizar);
-router.delete('/:id', verifyToken, ClienteController.excluir);
-router.get('/:id/historico', verifyToken, ClienteController.buscarHistorico);
+// Aplica autenticação em todas as rotas
+router.use(authMiddleware);
+
+// Rotas de clientes com autorização específica
+router.get('/', authorize(['clientes']), ClienteController.listar);
+router.get('/:id', authorize(['clientes']), ClienteController.buscarPorId);
+router.post('/', authorize(['clientes']), ClienteController.criar);
+router.put('/:id', authorize(['clientes']), ClienteController.atualizar);
+router.delete('/:id', authorize(['clientes']), ClienteController.excluir);
+router.get('/:id/historico', authorize(['clientes']), ClienteController.buscarHistorico);
 
 module.exports = router; 

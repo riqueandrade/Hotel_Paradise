@@ -4,11 +4,36 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const pool = require('../config/database');
-const verifyToken = require('../middlewares/auth');
+const { authMiddleware } = require('../middlewares/auth');
 
 // Middleware para verificar o token JWT
-router.get('/verify', verifyToken, (req, res) => {
-    res.json({ valid: true, user: req.user });
+router.get('/verify', authMiddleware, async (req, res) => {
+    try {
+        // Busca o usuário pelo ID
+        const [users] = await pool.execute(
+            'SELECT u.*, c.nome as cargo_nome FROM usuarios u JOIN cargos c ON u.cargo_id = c.id WHERE u.id = ?',
+            [req.userId]
+        );
+
+        if (users.length === 0) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
+        }
+
+        const user = users[0];
+
+        res.json({
+            valid: true,
+            user: {
+                id: user.id,
+                nome: user.nome,
+                email: user.email,
+                cargo: user.cargo_nome
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao verificar token:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
 });
 
 // Login com email e senha
@@ -42,9 +67,17 @@ router.post('/login', async (req, res) => {
                 email: user.email,
                 cargo: user.cargo_nome
             },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || 'hotel_paradise_secret',
             { expiresIn: '24h' }
         );
+
+        console.log('Token gerado:', token);
+        console.log('Dados do usuário:', {
+            id: user.id,
+            nome: user.nome,
+            email: user.email,
+            cargo: user.cargo_nome
+        });
 
         res.json({
             token,
@@ -81,15 +114,33 @@ router.get('/google/callback',
                     email: req.user.email,
                     cargo: req.user.cargo_nome
                 },
-                process.env.JWT_SECRET,
+                process.env.JWT_SECRET || 'hotel_paradise_secret',
                 { expiresIn: '24h' }
             );
             
-            // Redireciona para a página de sucesso com o token
-            res.redirect(`/html/auth-success.html?token=${token}`);
+            // Redireciona para uma página que salvará o token e redirecionará para o dashboard
+            res.send(`
+                <html>
+                <body>
+                    <script>
+                        try {
+                            // Salva o token no localStorage
+                            localStorage.setItem('token', '${token}');
+                            console.log('Token salvo:', '${token}');
+                            // Redireciona para o dashboard
+                            window.location.href = '/html/dashboard.html';
+                        } catch (error) {
+                            console.error('Erro ao salvar token:', error);
+                            alert('Erro ao fazer login. Por favor, tente novamente.');
+                            window.location.href = '/html/login.html';
+                        }
+                    </script>
+                </body>
+                </html>
+            `);
         } catch (error) {
             console.error('Erro no callback do Google:', error);
-            res.redirect('/html/auth-error.html');
+            res.redirect('/html/login.html');
         }
     }
 );
