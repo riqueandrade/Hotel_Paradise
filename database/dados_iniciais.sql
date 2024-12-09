@@ -24,13 +24,13 @@ INSERT INTO cargos (id, nome, descricao) VALUES
 
 -- Inserir usuários (senha: 123456)
 INSERT INTO usuarios (nome, email, senha, cargo_id) VALUES
-('Administrador', 'admin@hotelparadise.com', '$2b$10$A7IHvQ7QnX1B2mH2yGZJXOZ.Yw0ASrCk/0RiUk3ZVXsB8kOqfR5.q', 1),
-('João Silva', 'gerente@hotelparadise.com', '$2b$10$A7IHvQ7QnX1B2mH2yGZJXOZ.Yw0ASrCk/0RiUk3ZVXsB8kOqfR5.q', 2),
-('Maria Santos', 'recepcao@hotelparadise.com', '$2b$10$A7IHvQ7QnX1B2mH2yGZJXOZ.Yw0ASrCk/0RiUk3ZVXsB8kOqfR5.q', 3),
-('Ana Oliveira', 'camareira@hotelparadise.com', '$2b$10$A7IHvQ7QnX1B2mH2yGZJXOZ.Yw0ASrCk/0RiUk3ZVXsB8kOqfR5.q', 4),
-('Carlos Souza', 'financeiro@hotelparadise.com', '$2b$10$A7IHvQ7QnX1B2mH2yGZJXOZ.Yw0ASrCk/0RiUk3ZVXsB8kOqfR5.q', 5),
-('Pedro Costa', 'manutencao@hotelparadise.com', '$2b$10$A7IHvQ7QnX1B2mH2yGZJXOZ.Yw0ASrCk/0RiUk3ZVXsB8kOqfR5.q', 6),
-('Julia Lima', 'atendente@hotelparadise.com', '$2b$10$A7IHvQ7QnX1B2mH2yGZJXOZ.Yw0ASrCk/0RiUk3ZVXsB8kOqfR5.q', 7);
+('Administrador', 'admin@hotelparadise.com', '$2a$10$yYdrY32C3oQjEE7pOFlcKevItC/Q725afTKgZMbTM93Q/NHfJ1Guq', 1),
+('João Silva', 'gerente@hotelparadise.com', '$2a$10$yYdrY32C3oQjEE7pOFlcKevItC/Q725afTKgZMbTM93Q/NHfJ1Guq', 2),
+('Maria Santos', 'recepcao@hotelparadise.com', '$2a$10$yYdrY32C3oQjEE7pOFlcKevItC/Q725afTKgZMbTM93Q/NHfJ1Guq', 3),
+('Ana Oliveira', 'camareira@hotelparadise.com', '$2a$10$yYdrY32C3oQjEE7pOFlcKevItC/Q725afTKgZMbTM93Q/NHfJ1Guq', 4),
+('Carlos Souza', 'financeiro@hotelparadise.com', '$2a$10$yYdrY32C3oQjEE7pOFlcKevItC/Q725afTKgZMbTM93Q/NHfJ1Guq', 5),
+('Pedro Costa', 'manutencao@hotelparadise.com', '$2a$10$yYdrY32C3oQjEE7pOFlcKevItC/Q725afTKgZMbTM93Q/NHfJ1Guq', 6),
+('Julia Lima', 'atendente@hotelparadise.com', '$2a$10$yYdrY32C3oQjEE7pOFlcKevItC/Q725afTKgZMbTM93Q/NHfJ1Guq', 7);
 
 -- Inserir tipos de quarto com IDs fixos
 INSERT INTO tipos_quarto (id, nome, descricao, preco_diaria, capacidade) VALUES
