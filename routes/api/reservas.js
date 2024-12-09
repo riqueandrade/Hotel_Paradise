@@ -8,12 +8,12 @@ router.use(authMiddleware);
 
 // Rotas de reservas com autorização específica
 router.get('/', authorize(['reservas']), ReservaController.listar);
-router.get('/estatisticas', authorize(['reservas', 'relatorios']), ReservaController.buscarEstatisticas);
+router.get('/estatisticas', authorize(['reservas']), ReservaController.buscarEstatisticas);
 router.get('/:id', authorize(['reservas']), ReservaController.buscarPorId);
 router.post('/', authorize(['reservas']), ReservaController.criar);
 router.put('/:id', authorize(['reservas']), ReservaController.atualizar);
-router.post('/:id/checkin', authorize(['checkin', 'reservas']), ReservaController.realizarCheckin);
-router.post('/:id/checkout', authorize(['checkout', 'reservas']), ReservaController.realizarCheckout);
+router.post('/:id/checkin', authorize(['reservas', 'checkin']), ReservaController.realizarCheckin);
+router.post('/:id/checkout', authorize(['reservas', 'checkout']), ReservaController.realizarCheckout);
 router.post('/:id/cancelar', authorize(['reservas']), ReservaController.cancelar);
 
 module.exports = router; 

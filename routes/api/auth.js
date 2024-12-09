@@ -6,8 +6,30 @@ const AuthController = require('../../controllers/AuthController');
 const { authMiddleware } = require('../../middlewares/auth');
 
 // Rotas públicas
-router.post('/login', AuthController.login);
-router.post('/registro', AuthController.registro);
+router.post('/login', async (req, res) => {
+    try {
+        console.log('Tentativa de login:', req.body.email);
+        await AuthController.login(req, res);
+    } catch (error) {
+        console.error('Erro no login:', error);
+        res.status(500).json({ 
+            message: 'Erro interno do servidor',
+            error: error.message 
+        });
+    }
+});
+
+router.post('/registro', async (req, res) => {
+    try {
+        await AuthController.registro(req, res);
+    } catch (error) {
+        console.error('Erro no registro:', error);
+        res.status(500).json({ 
+            message: 'Erro interno do servidor',
+            error: error.message 
+        });
+    }
+});
 
 // Rotas do Google OAuth
 router.get('/google',
@@ -26,7 +48,7 @@ router.get('/google/callback',
                     id: req.user.id,
                     nome: req.user.nome,
                     email: req.user.email,
-                    cargo: req.user.cargo_nome // Usando cargo_nome em vez de cargo
+                    cargo: req.user.cargo_nome
                 },
                 process.env.JWT_SECRET || 'hotel_paradise_secret',
                 { expiresIn: '24h' }
@@ -68,6 +90,17 @@ router.get('/google/callback',
 );
 
 // Rotas protegidas
-router.get('/verify', authMiddleware, AuthController.verificarToken);
+router.get('/verify', authMiddleware, async (req, res) => {
+    try {
+        console.log('Verificando token para usuário:', req.userId);
+        await AuthController.verificarToken(req, res);
+    } catch (error) {
+        console.error('Erro na verificação do token:', error);
+        res.status(401).json({ 
+            message: 'Erro na verificação do token',
+            error: error.message 
+        });
+    }
+});
 
 module.exports = router; 

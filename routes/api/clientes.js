@@ -7,11 +7,11 @@ const { authMiddleware, authorize } = require('../../middlewares/auth');
 router.use(authMiddleware);
 
 // Rotas de clientes com autorização específica
-router.get('/', authorize(['clientes']), ClienteController.listar);
-router.get('/:id', authorize(['clientes']), ClienteController.buscarPorId);
-router.post('/', authorize(['clientes']), ClienteController.criar);
-router.put('/:id', authorize(['clientes']), ClienteController.atualizar);
-router.delete('/:id', authorize(['clientes']), ClienteController.excluir);
-router.get('/:id/historico', authorize(['clientes']), ClienteController.buscarHistorico);
+router.get('/', authorize(['clientes.visualizar']), ClienteController.listar);
+router.get('/:id', authorize(['clientes.visualizar']), ClienteController.buscarPorId);
+router.post('/', authorize(['clientes.criar']), ClienteController.criar);
+router.put('/:id', authorize(['clientes.editar']), ClienteController.atualizar);
+router.delete('/:id', authorize(['clientes.gerenciar']), ClienteController.excluir);
+router.get('/:id/historico', authorize(['clientes.visualizar']), ClienteController.buscarHistorico);
 
 module.exports = router; 

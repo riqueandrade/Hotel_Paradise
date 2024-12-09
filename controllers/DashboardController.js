@@ -3,6 +3,9 @@ const pool = require('../config/database');
 class DashboardController {
     async getStats(req, res) {
         try {
+            const userCargo = req.userCargo;
+            const isFinanceiro = userCargo === 'Administrador' || userCargo === 'Gerente' || userCargo === 'Financeiro';
+
             // Reservas de hoje (check-ins do dia)
             const [reservasHoje] = await pool.execute(
                 `SELECT COUNT(*) as total FROM reservas 
@@ -20,33 +23,6 @@ class DashboardController {
             );
 
             const taxaOcupacao = Math.round((quartosOcupados[0].total / quartosTotal[0].total) * 100) || 0;
-
-            // Receita do dia (pagamentos aprovados)
-            const [receitaDiaria] = await pool.execute(
-                `SELECT COALESCE(SUM(p.valor_total), 0) as total 
-                 FROM pagamentos p
-                 JOIN reservas r ON p.reserva_id = r.id
-                 WHERE DATE(p.data_aprovacao) = CURRENT_DATE()
-                 AND p.status = 'aprovado'`
-            );
-
-            // Novos clientes cadastrados hoje
-            const [novosClientes] = await pool.execute(
-                `SELECT COUNT(*) as total FROM clientes 
-                 WHERE DATE(data_cadastro) = CURRENT_DATE()`
-            );
-
-            // Dados para o gráfico de ocupação semanal
-            const [ocupacaoSemanal] = await pool.execute(
-                `SELECT 
-                    DATE(data_entrada) as data,
-                    COUNT(*) * 100.0 / (SELECT COUNT(*) FROM quartos) as taxa
-                 FROM reservas
-                 WHERE data_entrada >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)
-                 AND status IN ('confirmada', 'checkin')
-                 GROUP BY DATE(data_entrada)
-                 ORDER BY data`
-            );
 
             // Dados para o gráfico de distribuição de quartos
             const [distribuicaoQuartos] = await pool.execute(
@@ -69,43 +45,14 @@ class DashboardController {
                     END`
             );
 
-            // Formata os dados para os gráficos
-            const ultimos7Dias = Array.from({length: 7}, (_, i) => {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                return d.toISOString().split('T')[0];
-            }).reverse();
-
-            const ocupacaoPorDia = new Map(
-                ocupacaoSemanal.map(row => [row.data.toISOString().split('T')[0], Math.round(row.taxa)])
-            );
-
-            const dadosOcupacao = ultimos7Dias.map(dia => ocupacaoPorDia.get(dia) || 0);
-
-            // Estatísticas adicionais
-            const [mediaEstadia] = await pool.execute(
-                `SELECT AVG(DATEDIFF(data_saida, data_entrada)) as media
-                 FROM reservas
-                 WHERE status = 'checkout'
-                 AND data_checkout >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)`
-            );
-
-            // Prepara a resposta
-            res.json({
+            // Dados básicos que todos podem ver
+            const response = {
                 cards: {
                     reservasHoje: reservasHoje[0].total,
                     taxaOcupacao,
-                    receitaDiaria: receitaDiaria[0].total || 0,
-                    novosClientes: novosClientes[0].total
+                    novosClientes: 0
                 },
                 graficos: {
-                    ocupacaoSemanal: {
-                        labels: ultimos7Dias.map(data => {
-                            const d = new Date(data);
-                            return d.toLocaleDateString('pt-BR', { weekday: 'short' });
-                        }),
-                        data: dadosOcupacao
-                    },
                     distribuicaoQuartos: {
                         labels: ['Disponível', 'Ocupado', 'Manutenção'],
                         data: [
@@ -116,10 +63,74 @@ class DashboardController {
                     }
                 },
                 estatisticas: {
-                    mediaEstadia: Math.round(mediaEstadia[0].media || 0),
                     ultima_atualizacao: new Date()
                 }
-            });
+            };
+
+            // Dados financeiros e avançados apenas para cargos autorizados
+            if (isFinanceiro) {
+                // Receita do dia (pagamentos aprovados)
+                const [receitaDiaria] = await pool.execute(
+                    `SELECT COALESCE(SUM(p.valor_total), 0) as total 
+                     FROM pagamentos p
+                     JOIN reservas r ON p.reserva_id = r.id
+                     WHERE DATE(p.data_aprovacao) = CURRENT_DATE()
+                     AND p.status = 'aprovado'`
+                );
+
+                // Novos clientes cadastrados hoje
+                const [novosClientes] = await pool.execute(
+                    `SELECT COUNT(*) as total FROM clientes 
+                     WHERE DATE(data_cadastro) = CURRENT_DATE()`
+                );
+
+                // Dados para o gráfico de ocupação semanal
+                const [ocupacaoSemanal] = await pool.execute(
+                    `SELECT 
+                        DATE(data_entrada) as data,
+                        COUNT(*) * 100.0 / (SELECT COUNT(*) FROM quartos) as taxa
+                     FROM reservas
+                     WHERE data_entrada >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)
+                     AND status IN ('confirmada', 'checkin')
+                     GROUP BY DATE(data_entrada)
+                     ORDER BY data`
+                );
+
+                // Formata os dados para os gráficos
+                const ultimos7Dias = Array.from({length: 7}, (_, i) => {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    return d.toISOString().split('T')[0];
+                }).reverse();
+
+                const ocupacaoPorDia = new Map(
+                    ocupacaoSemanal.map(row => [row.data.toISOString().split('T')[0], Math.round(row.taxa)])
+                );
+
+                const dadosOcupacao = ultimos7Dias.map(dia => ocupacaoPorDia.get(dia) || 0);
+
+                // Estatísticas adicionais
+                const [mediaEstadia] = await pool.execute(
+                    `SELECT AVG(DATEDIFF(data_saida, data_entrada)) as media
+                     FROM reservas
+                     WHERE status = 'checkout'
+                     AND data_checkout >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)`
+                );
+
+                // Adiciona dados financeiros à resposta
+                response.cards.receitaDiaria = receitaDiaria[0].total || 0;
+                response.cards.novosClientes = novosClientes[0].total;
+                response.graficos.ocupacaoSemanal = {
+                    labels: ultimos7Dias.map(data => {
+                        const d = new Date(data);
+                        return d.toLocaleDateString('pt-BR', { weekday: 'short' });
+                    }),
+                    data: dadosOcupacao
+                };
+                response.estatisticas.mediaEstadia = Math.round(mediaEstadia[0].media || 0);
+            }
+
+            res.json(response);
         } catch (error) {
             console.error('Erro ao buscar estatísticas:', error);
             res.status(500).json({ message: 'Erro ao buscar estatísticas do dashboard' });

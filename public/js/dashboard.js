@@ -328,125 +328,180 @@ function formatDate(date) {
 // Função para atualizar os dados do dashboard
 async function updateDashboardData() {
     try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('Token não encontrado');
-        }
-
         const response = await fetch('/api/dashboard/stats', {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         });
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Erro ao carregar dados do dashboard');
+            throw new Error(await response.text());
         }
 
         const data = await response.json();
-        
-        // Atualiza os componentes do dashboard
-        updateCards(data);
-        updateReservasTable(data.ultimasReservas);
-        initializeCharts(data);
-        
+
+        // Atualiza os cards
+        document.querySelector('[data-card="reservas"] .card-value').textContent = data.cards.reservasHoje;
+        document.querySelector('[data-card="ocupacao"] .card-value').textContent = `${data.cards.taxaOcupacao}%`;
+
+        // Verifica se tem dados financeiros antes de atualizar
+        const receitaCard = document.querySelector('[data-card="receita"]');
+        const clientesCard = document.querySelector('[data-card="clientes"]');
+
+        if (data.cards.receitaDiaria !== undefined) {
+            receitaCard.style.display = 'block';
+            receitaCard.querySelector('.card-value').textContent = 
+                `R$ ${data.cards.receitaDiaria.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        } else {
+            receitaCard.style.display = 'none';
+        }
+
+        if (data.cards.novosClientes !== undefined) {
+            clientesCard.style.display = 'block';
+            clientesCard.querySelector('.card-value').textContent = data.cards.novosClientes;
+        } else {
+            clientesCard.style.display = 'none';
+        }
+
+        // Atualiza o gráfico de distribuição de quartos
+        if (data.graficos.distribuicaoQuartos) {
+            const ctx = document.getElementById('roomsChart').getContext('2d');
+            if (window.roomsChart) {
+                window.roomsChart.destroy();
+            }
+            window.roomsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.graficos.distribuicaoQuartos.labels,
+                    datasets: [{
+                        data: data.graficos.distribuicaoQuartos.data,
+                        backgroundColor: ['#28a745', '#dc3545', '#ffc107']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Atualiza o gráfico de ocupação semanal se disponível
+        const occupancyContainer = document.querySelector('.col-lg-8');
+        if (data.graficos.ocupacaoSemanal) {
+            occupancyContainer.style.display = 'block';
+            const ctx = document.getElementById('occupancyChart').getContext('2d');
+            if (window.occupancyChart) {
+                window.occupancyChart.destroy();
+            }
+            window.occupancyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.graficos.ocupacaoSemanal.labels,
+                    datasets: [{
+                        label: 'Taxa de Ocupação (%)',
+                        data: data.graficos.ocupacaoSemanal.data,
+                        borderColor: '#0d6efd',
+                        tension: 0.1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: value => `${value}%`
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        } else {
+            occupancyContainer.style.display = 'none';
+        }
+
+        // Atualiza a média de estadia se disponível
+        const mediaEstadia = document.getElementById('mediaEstadia');
+        if (mediaEstadia && data.estatisticas.mediaEstadia !== undefined) {
+            mediaEstadia.textContent = `${data.estatisticas.mediaEstadia} dias`;
+        }
+
     } catch (error) {
         console.error('Erro ao atualizar dados:', error);
-        if (error.message.includes('Token')) {
-            // Se o erro for relacionado ao token, redireciona para o login
-            localStorage.removeItem('token');
-            window.location.href = '/html/login.html';
-        } else {
-            showToast('Erro ao atualizar dados do dashboard: ' + error.message, 'error');
-        }
+        showToast('Erro ao carregar dados do dashboard', 'error');
     }
 }
 
-// Função para inicializar os botões de ação rápida
-function initializeQuickActions() {
-    const actions = {
-        'nova-reserva': () => {
-            if (window.modalNovaReserva) {
-                window.modalNovaReserva.show();
-            }
-        },
-        'novo-cliente': () => {
-            if (window.modalNovoCliente) {
-                window.modalNovoCliente.show();
-            }
-        },
-        'checkin': () => {
-            if (window.modalCheckInOut) {
-                document.getElementById('btnCheckIn').checked = true;
-                window.modalCheckInOut.show();
-            }
-        },
-        'pagamento': () => {
-            if (window.modalPagamento) {
-                window.modalPagamento.show();
-            }
-        }
-    };
-
-    document.querySelectorAll('.quick-action-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const action = btn.getAttribute('data-action');
-            if (actions[action]) {
-                actions[action]();
+// Atualiza os dados quando a página carregar
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Verifica o token e obtém dados do usuário
+        const response = await fetch('/api/auth/verify', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         });
-    });
-}
 
-// Função para mostrar toast de notificação
-function showToast(message, type = 'info') {
+        if (!response.ok) {
+            throw new Error('Token inválido');
+        }
+
+        const data = await response.json();
+        console.log('Dados do usuário:', data);
+
+        // Atualiza o nome do usuário
+        document.getElementById('userName').textContent = data.user.nome;
+
+        // Atualiza os dados do dashboard
+        await updateDashboardData();
+
+        // Configura o botão de logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/html/login.html';
+        });
+
+    } catch (error) {
+        console.error('Erro:', error);
+        window.location.href = '/html/login.html';
+    }
+});
+
+// Função para mostrar toast
+function showToast(message, type = 'success') {
     const toastContainer = document.querySelector('.toast-container');
-    if (!toastContainer) return;
-
-    const toastId = 'toast-' + Date.now();
-    const bgClass = {
-        info: 'bg-primary',
-        success: 'bg-success',
-        error: 'bg-danger',
-        warning: 'bg-warning'
-    }[type] || 'bg-primary';
-
-    const iconClass = {
-        info: 'bi-info-circle',
-        success: 'bi-check-circle',
-        error: 'bi-exclamation-circle',
-        warning: 'bi-exclamation-triangle'
-    }[type] || 'bi-info-circle';
-
     const toast = document.createElement('div');
-    toast.className = `toast ${bgClass} text-white`;
-    toast.id = toastId;
+    toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : 'success'} border-0`;
     toast.setAttribute('role', 'alert');
     toast.setAttribute('aria-live', 'assertive');
     toast.setAttribute('aria-atomic', 'true');
 
     toast.innerHTML = `
-        <div class="toast-header ${bgClass} text-white">
-            <i class="bi ${iconClass} me-2"></i>
-            <strong class="me-auto">Hotel Paradise</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Fechar"></button>
-        </div>
-        <div class="toast-body">
-            ${message}
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     `;
 
     toastContainer.appendChild(toast);
-
-    const bsToast = new bootstrap.Toast(toast, {
-        autohide: true,
-        delay: 5000
-    });
-
+    const bsToast = new bootstrap.Toast(toast);
     bsToast.show();
 
-    // Remove o toast do DOM depois que ele for escondido
     toast.addEventListener('hidden.bs.toast', () => {
         toast.remove();
     });

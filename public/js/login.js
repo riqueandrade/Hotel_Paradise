@@ -113,8 +113,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.classList.remove('btn-primary');
                 submitBtn.classList.add('btn-success');
 
+                // Redireciona baseado no cargo
+                const paginaInicial = {
+                    'Administrador': '/html/dashboard.html',
+                    'Gerente': '/html/dashboard.html',
+                    'Recepcionista': '/html/reservas.html',
+                    'Atendente': '/html/produtos.html',
+                    'Camareira': '/html/quartos.html',
+                    'Financeiro': '/html/relatorios.html',
+                    'Manutenção': '/html/quartos.html'
+                }[data.user.cargo] || '/html/dashboard.html';
+
                 setTimeout(() => {
-                    window.location.href = '/html/dashboard.html';
+                    window.location.href = paginaInicial;
                 }, 1000);
             } else {
                 showError(data.message || 'Erro ao fazer login');
@@ -201,42 +212,6 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnText;
         }
-    });
-
-    // Google Login com efeito de ripple
-    const googleBtn = document.getElementById('googleLogin');
-    googleBtn.addEventListener('click', function(e) {
-        // Cria o efeito de ripple
-        const ripple = document.createElement('div');
-        ripple.className = 'ripple';
-        
-        // Posiciona o ripple onde o usuário clicou
-        const rect = this.getBoundingClientRect();
-        ripple.style.left = e.clientX - rect.left + 'px';
-        ripple.style.top = e.clientY - rect.top + 'px';
-        
-        this.appendChild(ripple);
-        
-        // Remove o ripple após a animação
-        ripple.addEventListener('animationend', () => {
-            ripple.remove();
-        });
-
-        // Adiciona classe de loading e desabilita o botão
-        this.classList.add('loading');
-        this.disabled = true;
-        
-        // Atualiza o conteúdo do botão
-        const originalContent = this.innerHTML;
-        this.innerHTML = `
-            <span class="spinner-border spinner-border-sm me-2"></span>
-            <span>Conectando...</span>
-        `;
-
-        // Redireciona após um pequeno delay para mostrar a animação
-        setTimeout(() => {
-            window.location.href = '/api/auth/google';
-        }, 500);
     });
 
     // Função para validar email

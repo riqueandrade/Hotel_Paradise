@@ -7,6 +7,6 @@ const { authMiddleware, authorize } = require('../../middlewares/auth');
 router.use(authMiddleware);
 
 // Rota para buscar estatísticas do dashboard
-router.get('/stats', authorize(['dashboard']), DashboardController.getStats);
+router.get('/stats', authorize(['dashboard.basico', 'dashboard.financeiro']), DashboardController.getStats);
 
 module.exports = router; 

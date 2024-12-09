@@ -7,12 +7,12 @@ const { authMiddleware, authorize } = require('../../middlewares/auth');
 router.use(authMiddleware);
 
 // Rotas de produtos com autorização específica
-router.get('/', authorize(['produtos', 'consumos']), ProdutoController.listar);
-router.get('/estatisticas', authorize(['produtos', 'relatorios']), ProdutoController.buscarEstatisticas);
-router.get('/:id', authorize(['produtos', 'consumos']), ProdutoController.buscarPorId);
-router.post('/', authorize(['produtos']), ProdutoController.criar);
-router.put('/:id', authorize(['produtos']), ProdutoController.atualizar);
-router.delete('/:id', authorize(['produtos']), ProdutoController.excluir);
-router.patch('/:id/estoque', authorize(['produtos']), ProdutoController.atualizarEstoque);
+router.get('/', authorize(['produtos.visualizar']), ProdutoController.listar);
+router.get('/estatisticas', authorize(['relatorios']), ProdutoController.buscarEstatisticas);
+router.get('/:id', authorize(['produtos.visualizar']), ProdutoController.buscarPorId);
+router.post('/', authorize(['produtos.gerenciar']), ProdutoController.criar);
+router.put('/:id', authorize(['produtos.gerenciar', 'produtos.precos']), ProdutoController.atualizar);
+router.delete('/:id', authorize(['produtos.gerenciar']), ProdutoController.excluir);
+router.patch('/:id/estoque', authorize(['produtos.gerenciar']), ProdutoController.atualizarEstoque);
 
 module.exports = router; 
