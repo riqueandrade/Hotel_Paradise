@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Hotel Paradise</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="/css/login.css">
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+</head>
+
+<body>
+    <div class="login-container">
+        <!-- Botão Voltar -->
+        <a href="/" class="back-btn">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+
+        <div class="form-container">
+            <!-- Toggle Switch -->
+            <div class="toggle-container mb-4">
+                <button class="toggle-btn active" data-form="login">Login</button>
+                <button class="toggle-btn" data-form="register">Registrar</button>
+                <div class="toggle-slider"></div>
+            </div>
+
+            <!-- Formulário de Login -->
+            <form id="loginForm" class="animate__animated animate__fadeIn">
+                <h2>Bem-vindo de volta!</h2>
+                <p class="text-muted mb-4">Entre com suas credenciais para acessar</p>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-icon">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input type="email" class="form-control" id="loginEmail" placeholder="Email" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-icon">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input type="password" class="form-control" id="loginPassword" placeholder="Senha" required>
+                        <button type="button" class="toggle-password">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-check mb-3">
+                    <div class="remember-group">
+                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Lembrar-me</label>
+                    </div>
+                    <a href="#" class="forgot-link">Esqueceu a senha?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    Entrar
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+
+                <div class="social-login">
+                    <div class="divider">
+                        <span>ou continue com</span>
+                    </div>
+                    <button type="button" class="btn btn-google" id="googleLogin">
+                        <svg class="google-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                        </svg>
+                        <span>Continuar com Google</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Formulário de Registro -->
+            <form id="registerForm" class="animate__animated animate__fadeIn d-none">
+                <h2>Criar Conta</h2>
+                <p class="text-muted mb-4">Preencha seus dados para registrar</p>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-icon">
+                            <i class="bi bi-person"></i>
+                        </span>
+                        <input type="text" class="form-control" id="registerName" placeholder="Nome completo" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-icon">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input type="email" class="form-control" id="registerEmail" placeholder="Email" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-icon">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input type="password" class="form-control" id="registerPassword" placeholder="Senha" required>
+                        <button type="button" class="toggle-password">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-icon">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirmar senha" required>
+                        <button type="button" class="toggle-password">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-check mb-3">
+                    <label class="form-check-label" for="termsCheck">
+                        <input type="checkbox" class="form-check-input" id="termsCheck" required>
+                        Concordo com os <a href="#">termos</a> e <a href="#">política de privacidade</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    Registrar
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+            </form>
+
+            <div id="errorMessage" class="alert alert-danger mt-3 d-none"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/login.js"></script>
+</body>
+
+</html>

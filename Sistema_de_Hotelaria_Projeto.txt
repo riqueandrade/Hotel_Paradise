@@ -1,0 +1,138 @@
+PROJETO: SISTEMA DE HOTELARIA PARA CIDADES HISTÓRICAS COM CONTROLE POR CARGO
+================================================================================
+
+DESCRIÇÃO GERAL
+---------------
+O projeto visa o desenvolvimento de um sistema de gestão para hotéis e pousadas localizados em cidades históricas. O sistema será responsável por gerenciar as operações diárias de um estabelecimento hoteleiro, incluindo o controle de clientes, quartos, ocupações, estoque, finanças e funcionários.
+
+Uma característica essencial do sistema será o controle de acesso baseado em cargos, permitindo que diferentes usuários (como administradores, gerentes e funcionários) tenham permissões específicas dentro do sistema. O objetivo é garantir que o sistema seja funcional, intuitivo e seguro, seguindo práticas modernas de desenvolvimento de software.
+
+A interface do sistema será responsiva e de fácil utilização, garantindo que o usuário tenha uma experiência agradável ao interagir com o sistema, independentemente do dispositivo utilizado. O sistema também será projetado para ser escalável, permitindo o seu uso tanto em pequenos hotéis quanto em grandes redes hoteleiras.
+
+OBJETIVOS
+---------
+1. Desenvolver um Sistema Funcional e Robusto:
+   Criar um sistema de gestão hoteleira que atenda tanto a hotéis individuais quanto a redes hoteleiras, oferecendo ferramentas eficientes para a administração de clientes, quartos, ocupações, finanças e estoque.
+
+2. Garantir a Segurança e Proteção de Dados:
+   O sistema deve ser desenvolvido em conformidade com a Lei Geral de Proteção de Dados (LGPD), garantindo a segurança das informações dos hóspedes e da equipe, implementando práticas de segurança como autenticação e autorização de usuários, além de proteger dados sensíveis.
+
+3. Implementar Controle de Acesso Baseado em Cargos:
+   O sistema deve permitir diferentes níveis de acesso de acordo com o cargo do usuário:
+   - Administrador: Acesso total ao sistema, incluindo gerenciamento de usuários, finanças, estoque e relatórios financeiros.
+   - Gerente: Acesso a funções de gerenciamento de clientes, quartos e ocupações.
+   - Funcionário: Acesso limitado a operações como check-in e check-out, e gestão de ocupação de quartos.
+
+4. Prover uma Interface Responsiva e Intuitiva:
+   Desenvolver uma interface que seja amigável e fácil de navegar, adaptada a diferentes dispositivos (desktop, tablets e smartphones), para garantir uma boa experi��ncia de uso tanto para a equipe interna quanto para os administradores.
+
+5. Garantir Escalabilidade e Flexibilidade:
+   O sistema deve ser modular, permitindo fácil expansão e manutenção, podendo ser utilizado tanto por pequenos hotéis quanto por redes de hotéis em diferentes localidades.
+
+6. Gerar Relatórios e Análises Financeiras:
+   O sistema deve gerar relatórios financeiros detalhados, contemplando as entradas (receitas de hospedagens, serviços e outros) e as saídas (pagamentos de funcionários e gastos com produtos e serviços), permitindo ao administrador ter uma visão clara das finanças do estabelecimento.
+
+7. Aplicar Boas Práticas de Desenvolvimento de Software:
+   Seguir o padrão MVC (Model-View-Controller) para organização do código, aplicando boas práticas de programação e utilizando tecnologias modernas, como Node.js, Express, JWT, MySQL, HTML, CSS, Bootstrap e JavaScript, para garantir a qualidade, segurança e manutenção do sistema.
+
+REQUISITOS FUNCIONAIS
+--------------------
+1. Login e Autenticação:
+   - O sistema deve permitir que os usuários façam login utilizando e-mail e senha.
+   - Implementar login social com Google (OAuth2) como método alternativo de autenticação.
+   - Controle de Acesso por Cargo: O sistema deve garantir que diferentes usuários (Admin, Gerente, Recepcionista, etc.) tenham acessos específicos baseados no cargo.
+   - Recuperação de senha através de email.
+   - Opção de 'Manter conectado' para usuários confiáveis.
+
+2. Gestão de Clientes:
+   - Cadastro de Clientes: O sistema permitirá o cadastro de novos hóspedes, incluindo informações como nome, endereço, telefone, e-mail, redes sociais, profissão, motivo da visita e origem.
+   - Edição e Exclusão: Permitir a atualização e remoção de dados de clientes de acordo com a permissão do usuário (Admin ou Gerente).
+   - Visualização de Dados: Acesso à lista de clientes e suas informações com filtros por nome, origem e motivo da estadia.
+
+3. Gestão de Quartos:
+   - Cadastro de Quartos: O sistema deve permitir a configuração dos quartos, incluindo tipo (suíte, casal, etc.), comodidades e localização.
+   - Status de Disponibilidade: O sistema deve monitorar a disponibilidade dos quartos e permitir que o status de cada um (ocupado, disponível, em manutenção) seja atualizado em tempo real.
+   - Visualização e Alocação: O gerente e recepcionista poderão alocar quartos para os hóspedes com base na disponibilidade.
+
+4. Controle de Ocupações:
+   - Exibição de Ocupação: O sistema deve exibir, de forma clara, a ocupação atual dos quartos.
+   - Atribuição de Ocupações: O recepcionista pode atribuir hóspedes a quartos disponíveis e registrar a data de entrada e saída.
+
+5. Controle Financeiro de Hóspedes:
+   - Registro de Gastos Adicionais: O sistema permitirá o registro de despesas adicionais dos hóspedes.
+   - Pagamento de Hóspedes: O sistema deve registrar os pagamentos realizados pelos hóspedes.
+   - Histórico Financeiro: Visualização do histórico de transações de cada hóspede.
+
+6. Gestão de Funcionários:
+   - Cadastro de Funcionários: O sistema deve permitir o cadastro e gerenciamento dos dados dos funcionários.
+   - Avaliação pelos Hóspedes: Os hóspedes podem avaliar os funcionários após a estadia.
+   - Controle de Folgas: O sistema deve gerenciar as folgas e turnos dos funcionários.
+
+7. Gestão de Estoque:
+   - Cadastro de Produtos: O sistema deve permitir o cadastro de produtos no estoque.
+   - Controle de Quantidade e Reposição: O sistema deve monitorar a quantidade disponível de cada item.
+   - Movimentação de Estoque: O sistema deve registrar entradas e saídas de produtos.
+
+8. Gestão Financeira Geral:
+   - Entrada e Saída de Dinheiro: O sistema deve controlar tanto as receitas quanto as despesas do hotel.
+   - Relatórios Financeiros: O sistema deve gerar relatórios financeiros detalhados.
+   - Controle de Contas: O sistema deve permitir o gerenciamento de contas a pagar e a receber.
+
+REQUISITOS NÃO FUNCIONAIS
+------------------------
+1. Usabilidade:
+   - O sistema deve ser intuitivo e fácil de usar, com uma interface que permita aos usuários realizar suas tarefas de maneira eficiente.
+   - Acessibilidade: A interface deve ser acessível em diferentes dispositivos (desktop, tablets e smartphones), adaptando-se automaticamente ao tamanho da tela (design responsivo).
+   - Feedback Visual: O sistema deve fornecer feedback claro em ações como cadastro, login, salvamento de dados e erros.
+
+2. Segurança:
+   - O sistema deve garantir a segurança dos dados armazenados, com criptografia de senhas utilizando algoritmos robustos como bcrypt.
+   - Proteção contra ataques comuns como SQL injection, Cross-site Scripting (XSS) e Cross-Site Request Forgery (CSRF).
+   - Implementação de autenticação JWT (JSON Web Tokens) para garantir a comunicação segura entre cliente e servidor.
+   - Integração com serviços OAuth2 (como Google) para autenticação segura de terceiros.
+   - Controle de Acesso: Implementação de um controle rigoroso de permissões baseado em cargos (RBAC).
+   - O sistema deve estar em conformidade com a LGPD (Lei Geral de Proteção de Dados).
+   - Implementação de logs de auditoria para todas as operações sensíveis no sistema.
+
+3. Escalabilidade:
+   - O sistema deve ser modular e escalável, permitindo fácil expansão e integração de novos módulos.
+   - O banco de dados e a arquitetura do sistema devem ser projetados para suportar um grande número de usuários.
+
+4. Desempenho:
+   - O sistema deve responder rapidamente às interações do usuário.
+   - As páginas principais devem carregar rapidamente, mesmo em conexões de internet mais lentas.
+   - O processo de autenticação e autorização deve ser otimizado para garantir respostas rápidas.
+
+5. Manutenção e Extensibilidade:
+   - O código deve ser bem estruturado e documentado, seguindo o padrão MVC.
+   - Testes automatizados devem ser implementados.
+   - O sistema de autenticação deve ser modular para permitir a fácil adição de novos provedores.
+
+6. Internacionalização e Localização:
+   - O sistema deve ser projetado para permitir a fácil localização para outros idiomas.
+   - A interface deve suportar moedas e formatos de data/hora específicos de cada região.
+
+ENTREGÁVEIS
+-----------
+1. Sistema Completo:
+   - Código-Fonte: O código-fonte completo do sistema, bem organizado e documentado.
+   - Estrutura do Projeto: O código deve seguir uma estrutura de pastas limpa e organizada.
+   - Funcionalidades Implementadas: Todas as funcionalidades descritas nos requisitos funcionais.
+
+2. Banco de Dados:
+   - Scripts de Banco de Dados: O banco de dados MySQL com scripts de criação de tabelas.
+   - Dados de Teste: O banco de dados deve conter dados de teste.
+
+3. Documentação do Sistema:
+   - Manual de Instalação e Execução: Instruções detalhadas de instalação e configuração.
+   - Documentação Técnica: Código bem comentado e documentado.
+   - Guia do Usuário: Manual para os usuários finais.
+
+4. Interface Frontend:
+   - Protótipo Responsivo: Interface adaptável a diferentes dispositivos.
+   - Aparência Visual: Interface agradável e organizada.
+
+5. Testes Automatizados:
+   - Testes de Funcionalidade: Testes para as principais funcionalidades.
+   - Cobertura de Testes: Cobertura ampla de cenários de uso.
+

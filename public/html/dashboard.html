@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Hotel Paradise</title>
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Hotel Paradise</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="/html/dashboard.html" class="active">
+                    <i class="bi bi-speedometer2"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="/html/reservas.html">
+                    <i class="bi bi-calendar-check"></i>
+                    Reservas
+                </a>
+            </li>
+            <li>
+                <a href="/html/clientes.html">
+                    <i class="bi bi-people"></i>
+                    Clientes
+                </a>
+            </li>
+            <li>
+                <a href="/html/quartos.html">
+                    <i class="bi bi-door-open"></i>
+                    Quartos
+                </a>
+            </li>
+            <li>
+                <a href="/html/produtos.html">
+                    <i class="bi bi-box-seam"></i>
+                    Produtos
+                </a>
+            </li>
+            <li>
+                <a href="/html/relatorios.html">
+                    <i class="bi bi-graph-up"></i>
+                    Relatórios
+                </a>
+            </li>
+            <li>
+                <a href="/html/configuracoes.html">
+                    <i class="bi bi-gear"></i>
+                    Configurações
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Welcome Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3">Bem-vindo, <span id="userName">Usuário</span>!</h1>
+                <p class="text-muted">Aqui está o resumo do seu hotel hoje</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary">
+                    <i class="bi bi-bell"></i>
+                </button>
+                <button class="btn btn-primary" id="logoutBtn">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Sair
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions mb-4">
+            <button class="quick-action-btn" data-action="nova-reserva">
+                <i class="bi bi-plus-circle"></i>
+                <span>Nova Reserva</span>
+            </button>
+            <button class="quick-action-btn" data-action="novo-cliente">
+                <i class="bi bi-person-plus"></i>
+                <span>Novo Cliente</span>
+            </button>
+            <button class="quick-action-btn" data-action="checkin">
+                <i class="bi bi-calendar-check"></i>
+                <span>Check-in/Check-out</span>
+            </button>
+            <button class="quick-action-btn" data-action="pagamento">
+                <i class="bi bi-cash"></i>
+                <span>Registrar Pagamento</span>
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="dashboard-card" data-card="reservas">
+                    <div class="card-icon blue">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <div class="card-title">Reservas Hoje</div>
+                    <div class="card-value">0</div>
+                    <div class="card-trend">
+                        <i class="bi bi-arrow-up"></i>
+                        <span>Carregando...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="dashboard-card" data-card="ocupacao">
+                    <div class="card-icon green">
+                        <i class="bi bi-door-open"></i>
+                    </div>
+                    <div class="card-title">Quartos Ocupados</div>
+                    <div class="card-value">0%</div>
+                    <div class="card-trend">
+                        <i class="bi bi-arrow-up"></i>
+                        <span>Carregando...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="dashboard-card" data-card="receita">
+                    <div class="card-icon orange">
+                        <i class="bi bi-cash"></i>
+                    </div>
+                    <div class="card-title">Receita Diária</div>
+                    <div class="card-value">R$ 0,00</div>
+                    <div class="card-trend">
+                        <i class="bi bi-arrow-up"></i>
+                        <span>Carregando...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="dashboard-card" data-card="clientes">
+                    <div class="card-icon red">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="card-title">Novos Clientes</div>
+                    <div class="card-value">0</div>
+                    <div class="card-trend">
+                        <i class="bi bi-arrow-up"></i>
+                        <span>Carregando...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-lg-8">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Ocupação nos Últimos 7 Dias</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown">
+                                <i class="bi bi-calendar3"></i> Últimos 7 dias
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Últimos 7 dias</a></li>
+                                <li><a class="dropdown-item" href="#">Últimos 30 dias</a></li>
+                                <li><a class="dropdown-item" href="#">Este mês</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="occupancyChart"></canvas>
+                        <div class="empty-state" style="display: none;">
+                            <i class="bi bi-graph-up"></i>
+                            <h4>Sem dados de ocupação</h4>
+                            <p>Ainda não há dados de ocupação para exibir neste período.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Distribuição de Quartos</h5>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="roomsChart"></canvas>
+                        <div class="empty-state" style="display: none;">
+                            <i class="bi bi-door-open"></i>
+                            <h4>Sem quartos cadastrados</h4>
+                            <p>Adicione quartos ao sistema para visualizar a distribuição.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Bookings -->
+        <div class="table-container">
+            <div class="card-header border-0 bg-transparent">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Reservas Recentes</h5>
+                    <div class="d-flex gap-2">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown">
+                                <i class="bi bi-funnel"></i> Filtrar
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Todas</a></li>
+                                <li><a class="dropdown-item" href="#">Confirmadas</a></li>
+                                <li><a class="dropdown-item" href="#">Pendentes</a></li>
+                                <li><a class="dropdown-item" href="#">Canceladas</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Quarto</th>
+                            <th>Check-in</th>
+                            <th>Check-out</th>
+                            <th>Status</th>
+                            <th>Valor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-empty">
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="bi bi-calendar-x"></i>
+                                    <h4>Nenhuma reserva encontrada</h4>
+                                    <p>Não há reservas para exibir neste momento.</p>
+                                    <button class="btn btn-primary mt-3">
+                                        <i class="bi bi-plus-lg"></i> Nova Reserva
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <!-- Modal Nova Reserva -->
+    <div class="modal fade" id="modalNovaReserva" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova Reserva</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNovaReserva" class="needs-validation" novalidate>
+                        <div class="row g-3">
+                            <!-- Cliente -->
+                            <div class="col-md-12">
+                                <label class="form-label">Cliente</label>
+                                <select class="form-select" name="cliente_id" required>
+                                    <option value="">Selecione um cliente</option>
+                                </select>
+                                <div class="invalid-feedback">Por favor, selecione um cliente.</div>
+                            </div>
+                            <!-- Quarto -->
+                            <div class="col-md-6">
+                                <label class="form-label">Quarto</label>
+                                <select class="form-select" name="quarto_id" required>
+                                    <option value="">Selecione um quarto</option>
+                                </select>
+                                <div class="invalid-feedback">Por favor, selecione um quarto.</div>
+                            </div>
+                            <!-- Tipo de Quarto -->
+                            <div class="col-md-6">
+                                <label class="form-label">Tipo de Quarto</label>
+                                <select class="form-select" name="tipo_quarto" required>
+                                    <option value="">Selecione o tipo</option>
+                                    <option value="1">Standard</option>
+                                    <option value="2">Luxo</option>
+                                    <option value="3">Suíte Master</option>
+                                </select>
+                                <div class="invalid-feedback">Por favor, selecione o tipo de quarto.</div>
+                            </div>
+                            <!-- Check-in -->
+                            <div class="col-md-6">
+                                <label class="form-label">Check-in</label>
+                                <input type="date" class="form-control" name="data_entrada" required min="">
+                                <div class="invalid-feedback">Por favor, selecione a data de check-in.</div>
+                            </div>
+                            <!-- Check-out -->
+                            <div class="col-md-6">
+                                <label class="form-label">Check-out</label>
+                                <input type="date" class="form-control" name="data_saida" required min="">
+                                <div class="invalid-feedback">Por favor, selecione a data de check-out.</div>
+                            </div>
+                            <!-- Valor -->
+                            <div class="col-md-6">
+                                <label class="form-label">Valor da Diária</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="text" class="form-control" name="valor_diaria" readonly>
+                                </div>
+                            </div>
+                            <!-- Total -->
+                            <div class="col-md-6">
+                                <label class="form-label">Valor Total</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="text" class="form-control" name="valor_total" readonly>
+                                </div>
+                            </div>
+                            <!-- Observações -->
+                            <div class="col-12">
+                                <label class="form-label">Observações</label>
+                                <textarea class="form-control" name="observacoes" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarReserva()">Confirmar Reserva</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Novo Cliente -->
+    <div class="modal fade" id="modalNovoCliente" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNovoCliente" class="needs-validation" novalidate>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Nome Completo</label>
+                                <input type="text" class="form-control" name="nome" required minlength="3">
+                                <div class="invalid-feedback">Por favor, insira o nome completo (mínimo 3 caracteres).
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">E-mail</label>
+                                <input type="email" class="form-control" name="email" required>
+                                <div class="invalid-feedback">Por favor, insira um e-mail válido.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Telefone</label>
+                                <input type="tel" class="form-control" name="telefone" required>
+                                <div class="invalid-feedback">Por favor, insira um telefone válido.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">CPF</label>
+                                <input type="text" class="form-control" name="cpf" required>
+                                <div class="invalid-feedback">Por favor, insira um CPF válido.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Data de Nascimento</label>
+                                <input type="date" class="form-control" name="data_nascimento" required max="">
+                                <div class="invalid-feedback">Por favor, insira uma data válida.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">CEP</label>
+                                <input type="text" class="form-control" name="cep" required>
+                                <div class="invalid-feedback">Por favor, insira um CEP válido.</div>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Endereço</label>
+                                <input type="text" class="form-control" name="endereco" required>
+                                <div class="invalid-feedback">Por favor, insira o endereço.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Cidade</label>
+                                <input type="text" class="form-control" name="cidade" required>
+                                <div class="invalid-feedback">Por favor, insira a cidade.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Estado</label>
+                                <select class="form-select" name="estado" required>
+                                    <option value="">Selecione</option>
+                                    <option value="AC">Acre</option>
+                                    <option value="AL">Alagoas</option>
+                                    <option value="AP">Amapá</option>
+                                    <option value="AM">Amazonas</option>
+                                    <option value="BA">Bahia</option>
+                                    <option value="CE">Ceará</option>
+                                    <option value="DF">Distrito Federal</option>
+                                    <option value="ES">Espírito Santo</option>
+                                    <option value="GO">Goiás</option>
+                                    <option value="MA">Maranhão</option>
+                                    <option value="MT">Mato Grosso</option>
+                                    <option value="MS">Mato Grosso do Sul</option>
+                                    <option value="MG">Minas Gerais</option>
+                                    <option value="PA">Pará</option>
+                                    <option value="PB">Paraíba</option>
+                                    <option value="PR">Paraná</option>
+                                    <option value="PE">Pernambuco</option>
+                                    <option value="PI">Piauí</option>
+                                    <option value="RJ">Rio de Janeiro</option>
+                                    <option value="RN">Rio Grande do Norte</option>
+                                    <option value="RS">Rio Grande do Sul</option>
+                                    <option value="RO">Rondônia</option>
+                                    <option value="RR">Roraima</option>
+                                    <option value="SC">Santa Catarina</option>
+                                    <option value="SP">São Paulo</option>
+                                    <option value="SE">Sergipe</option>
+                                    <option value="TO">Tocantins</option>
+                                </select>
+                                <div class="invalid-feedback">Por favor, selecione o estado.</div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Observações</label>
+                                <textarea class="form-control" name="observacoes" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarCliente()">Salvar Cliente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Check-in/Check-out -->
+    <div class="modal fade" id="modalCheckInOut" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Check-in / Check-out</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="checkType" id="btnCheckIn" value="checkin"
+                                checked>
+                            <label class="btn btn-outline-primary" for="btnCheckIn">Check-in</label>
+                            <input type="radio" class="btn-check" name="checkType" id="btnCheckOut" value="checkout">
+                            <label class="btn btn-outline-primary" for="btnCheckOut">Check-out</label>
+                        </div>
+                    </div>
+                    <form id="formCheckInOut">
+                        <div class="mb-3">
+                            <label class="form-label">Reserva</label>
+                            <select class="form-select" name="reserva_id" required>
+                                <option value="">Selecione uma reserva</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cliente</label>
+                            <input type="text" class="form-control" name="cliente" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quarto</label>
+                            <input type="text" class="form-control" name="quarto" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Data Prevista</label>
+                            <input type="text" class="form-control" name="data_prevista" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="realizarCheckInOut()">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Registrar Pagamento -->
+    <div class="modal fade" id="modalPagamento" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar Pagamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formPagamento">
+                        <div class="mb-3">
+                            <label class="form-label">Reserva</label>
+                            <select class="form-select" name="reserva_id" required>
+                                <option value="">Selecione uma reserva</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Valor Total</label>
+                            <input type="number" class="form-control" name="valor_total" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Forma de Pagamento</label>
+                            <select class="form-select" name="forma_pagamento" required>
+                                <option value="">Selecione</option>
+                                <option value="credito">Cartão de Crédito</option>
+                                <option value="debito">Cartão de Débito</option>
+                                <option value="dinheiro">Dinheiro</option>
+                                <option value="pix">PIX</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Parcelas</label>
+                            <select class="form-select" name="parcelas">
+                                <option value="1">1x</option>
+                                <option value="2">2x</option>
+                                <option value="3">3x</option>
+                                <option value="4">4x</option>
+                                <option value="5">5x</option>
+                                <option value="6">6x</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="registrarPagamento()">Confirmar
+                        Pagamento</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/imask"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+
+</html>
