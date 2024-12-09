@@ -9,14 +9,17 @@ document.addEventListener('DOMContentLoaded', () => {
     atualizarEstatisticas();
     
     // Listeners dos filtros
-    document.getElementById('searchInput').addEventListener('input', debounce(aplicarFiltros, 500));
-    document.getElementById('statusFilter').addEventListener('change', aplicarFiltros);
-    document.getElementById('tipoFilter').addEventListener('change', aplicarFiltros);
-    document.getElementById('sortBy').addEventListener('change', aplicarFiltros);
-    
-    // Listener do formulário e logout
-    document.getElementById('btnSalvar').addEventListener('click', salvarQuarto);
-    document.getElementById('btnLogout').addEventListener('click', logout);
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const tipoFilter = document.getElementById('tipoFilter');
+    const sortBy = document.getElementById('sortBy');
+    const btnSalvar = document.getElementById('btnSalvar');
+
+    if (searchInput) searchInput.addEventListener('input', debounce(aplicarFiltros, 500));
+    if (statusFilter) statusFilter.addEventListener('change', aplicarFiltros);
+    if (tipoFilter) tipoFilter.addEventListener('change', aplicarFiltros);
+    if (sortBy) sortBy.addEventListener('change', aplicarFiltros);
+    if (btnSalvar) btnSalvar.addEventListener('click', salvarQuarto);
 });
 
 // Funções de API

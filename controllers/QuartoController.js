@@ -127,6 +127,27 @@ class QuartoController {
             errorHandler(res, error, 'Erro ao buscar ocupação');
         }
     }
+
+    // Buscar quartos disponíveis
+    static async buscarDisponiveis(req, res) {
+        try {
+            const { data_entrada, data_saida } = req.query;
+            
+            // Se não houver datas, retorna todos os quartos disponíveis
+            if (!data_entrada || !data_saida) {
+                const quartos = await Quarto.buscarTodos();
+                const disponiveis = quartos.filter(q => q.status === 'disponivel');
+                return res.json(disponiveis);
+            }
+
+            // Se houver datas, busca quartos disponíveis no período
+            const quartos = await Quarto.buscarDisponiveis(data_entrada, data_saida);
+            res.json(quartos);
+        } catch (error) {
+            console.error('Erro ao buscar quartos disponíveis:', error);
+            errorHandler(res, error, 'Erro ao buscar quartos disponíveis');
+        }
+    }
 }
 
 module.exports = QuartoController; 

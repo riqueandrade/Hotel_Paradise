@@ -9,6 +9,7 @@ router.get('/teste', (req, res) => {
 });
 
 // Rotas de quartos
+router.get('/disponiveis', verifyToken, QuartoController.buscarDisponiveis.bind(QuartoController));
 router.get('/', verifyToken, QuartoController.listar.bind(QuartoController));
 router.get('/ocupacao', verifyToken, QuartoController.buscarOcupacao.bind(QuartoController));
 router.get('/:id', verifyToken, QuartoController.buscarPorId.bind(QuartoController));
