@@ -36,6 +36,7 @@ app.use('/api/produtos', require('./routes/api/produtos'));
 app.use('/api/relatorios', require('./routes/api/relatorios'));
 app.use('/api/usuarios', require('./routes/api/usuarios'));
 app.use('/api/configuracoes', require('./routes/api/configuracoes'));
+app.use('/api/dashboard', require('./routes/api/dashboard'));
 
 // Rota principal
 app.get('/', (req, res) => {

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ClienteController = require('../../controllers/ClienteController');
-const verifyToken = require('../../middleware/verifyToken');
+const verifyToken = require('../../middlewares/auth');
 
 // Rotas de clientes
 router.get('/', verifyToken, ClienteController.listar);

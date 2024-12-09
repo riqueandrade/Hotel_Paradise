@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ProdutoController = require('../../controllers/ProdutoController');
-const verifyToken = require('../../middleware/verifyToken');
+const verifyToken = require('../../middlewares/auth');
 
 // Rotas de produtos
 router.get('/', verifyToken, ProdutoController.listar.bind(ProdutoController));

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const QuartoController = require('../../controllers/QuartoController');
-const verifyToken = require('../../middleware/verifyToken');
+const verifyToken = require('../../middlewares/auth');
 
 // Rota de teste
 router.get('/teste', (req, res) => {

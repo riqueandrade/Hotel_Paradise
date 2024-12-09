@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ReservaController = require('../../controllers/ReservaController');
-const verifyToken = require('../../middleware/verifyToken');
+const verifyToken = require('../../middlewares/auth');
 
 // Rotas de reservas
 router.get('/', verifyToken, ReservaController.listar);

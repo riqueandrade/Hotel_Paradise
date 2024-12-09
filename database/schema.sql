@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     cargo_id INT,
     google_id VARCHAR(100),
     ativo BOOLEAN DEFAULT true,
+    ultimo_acesso TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (cargo_id) REFERENCES cargos(id)
@@ -55,6 +56,9 @@ CREATE TABLE IF NOT EXISTS clientes (
     motivo_visita TEXT,
     origem VARCHAR(100),
     observacoes TEXT,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ultima_hospedagem TIMESTAMP NULL,
+    total_hospedagens INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -65,6 +69,7 @@ CREATE TABLE IF NOT EXISTS tipos_quarto (
     nome VARCHAR(50) NOT NULL,
     descricao TEXT,
     preco_diaria DECIMAL(10,2) NOT NULL,
+    capacidade INT NOT NULL DEFAULT 2,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -76,6 +81,8 @@ CREATE TABLE IF NOT EXISTS quartos (
     tipo_id INT NOT NULL,
     status ENUM('disponivel', 'ocupado', 'manutencao') DEFAULT 'disponivel',
     andar VARCHAR(10),
+    ultima_limpeza TIMESTAMP NULL,
+    ultima_manutencao TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (tipo_id) REFERENCES tipos_quarto(id)
@@ -91,6 +98,10 @@ CREATE TABLE IF NOT EXISTS reservas (
     status ENUM('pendente', 'confirmada', 'checkin', 'checkout', 'cancelada') DEFAULT 'pendente',
     valor_diaria DECIMAL(10,2) NOT NULL,
     valor_total DECIMAL(10,2) NOT NULL,
+    data_checkin TIMESTAMP NULL,
+    data_checkout TIMESTAMP NULL,
+    data_cancelamento TIMESTAMP NULL,
+    motivo_cancelamento TEXT,
     observacoes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -107,6 +118,7 @@ CREATE TABLE IF NOT EXISTS produtos (
     preco DECIMAL(10,2) NOT NULL,
     estoque INT DEFAULT 0,
     estoque_minimo INT DEFAULT 5,
+    ultima_reposicao TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -146,6 +158,8 @@ CREATE TABLE IF NOT EXISTS pagamentos (
     valor_total DECIMAL(10,2) NOT NULL,
     forma_pagamento ENUM('credito', 'debito', 'dinheiro', 'pix') NOT NULL,
     parcelas INT DEFAULT 1,
+    status ENUM('pendente', 'aprovado', 'recusado', 'estornado') DEFAULT 'pendente',
+    data_aprovacao TIMESTAMP NULL,
     observacoes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

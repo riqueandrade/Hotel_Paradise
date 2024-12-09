@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const pool = require('../config/database');
-const verifyToken = require('../middleware/verifyToken');
+const verifyToken = require('../middlewares/auth');
 
 // Middleware para verificar o token JWT
 router.get('/verify', verifyToken, (req, res) => {
