@@ -126,6 +126,19 @@ CREATE TABLE IF NOT EXISTS consumos (
     FOREIGN KEY (produto_id) REFERENCES produtos(id)
 );
 
+-- Tabela de configurações
+CREATE TABLE IF NOT EXISTS configuracoes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome_hotel VARCHAR(100) NOT NULL,
+    endereco TEXT,
+    telefone VARCHAR(20),
+    email_contato VARCHAR(100),
+    notificacoes JSON,
+    ultimo_backup TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Tabela de pagamentos
 CREATE TABLE IF NOT EXISTS pagamentos (
     id INT PRIMARY KEY AUTO_INCREMENT,

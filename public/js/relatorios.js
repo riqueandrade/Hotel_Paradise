@@ -99,7 +99,12 @@ function alternarVisualizacao() {
 }
 
 function renderizarGrafico(dados) {
-    const ctx = document.getElementById('areaGrafico').getContext('2d');
+    const areaGrafico = document.getElementById('areaGrafico');
+    
+    // Limpa a área do gráfico
+    areaGrafico.innerHTML = '<canvas></canvas>';
+    
+    const ctx = areaGrafico.querySelector('canvas').getContext('2d');
     const tipo = document.getElementById('tipoRelatorio').value;
     
     if (graficoAtual) {
@@ -178,6 +183,7 @@ function gerarConfigGrafico(tipo, dados) {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -200,6 +206,7 @@ function gerarConfigGrafico(tipo, dados) {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true
@@ -223,7 +230,8 @@ function gerarConfigGrafico(tipo, dados) {
                 }]
             },
             options: {
-                responsive: true
+                responsive: true,
+                maintainAspectRatio: false
             }
         },
         clientes: {
@@ -240,6 +248,7 @@ function gerarConfigGrafico(tipo, dados) {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true

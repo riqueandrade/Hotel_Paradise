@@ -13,14 +13,14 @@ class RelatorioController {
                 case 'ocupacao':
                     query = `
                         SELECT 
-                            DATE_FORMAT(data_checkin, '%Y-%m') as periodo,
+                            DATE_FORMAT(data_entrada, '%Y-%m') as periodo,
                             COUNT(*) as quartos_ocupados,
                             (SELECT COUNT(*) FROM quartos) as total_quartos,
                             (COUNT(*) * 100.0 / (SELECT COUNT(*) FROM quartos)) as taxa_ocupacao
                         FROM reservas
                         WHERE status = 'confirmada'
-                        ${this.getFiltroPeriodo(periodo, 'data_checkin')}
-                        GROUP BY DATE_FORMAT(data_checkin, '%Y-%m')
+                        ${this.getFiltroPeriodo(periodo, 'data_entrada')}
+                        GROUP BY DATE_FORMAT(data_entrada, '%Y-%m')
                         ORDER BY periodo DESC
                     `;
                     break;
@@ -28,15 +28,15 @@ class RelatorioController {
                 case 'financeiro':
                     query = `
                         SELECT 
-                            DATE_FORMAT(r.data_checkin, '%Y-%m') as periodo,
+                            DATE_FORMAT(r.data_entrada, '%Y-%m') as periodo,
                             SUM(r.valor_total) as receita,
                             COALESCE(SUM(p.preco * rp.quantidade), 0) as despesas
                         FROM reservas r
                         LEFT JOIN reservas_produtos rp ON r.id = rp.reserva_id
                         LEFT JOIN produtos p ON rp.produto_id = p.id
                         WHERE r.status = 'confirmada'
-                        ${this.getFiltroPeriodo(periodo, 'r.data_checkin')}
-                        GROUP BY DATE_FORMAT(r.data_checkin, '%Y-%m')
+                        ${this.getFiltroPeriodo(periodo, 'r.data_entrada')}
+                        GROUP BY DATE_FORMAT(r.data_entrada, '%Y-%m')
                         ORDER BY periodo DESC
                     `;
                     break;
@@ -51,7 +51,7 @@ class RelatorioController {
                         LEFT JOIN reservas_produtos rp ON p.id = rp.produto_id
                         LEFT JOIN reservas r ON rp.reserva_id = r.id
                         WHERE r.status = 'confirmada'
-                        ${this.getFiltroPeriodo(periodo, 'r.data_checkin')}
+                        ${this.getFiltroPeriodo(periodo, 'r.data_entrada')}
                         GROUP BY p.id, p.nome
                         ORDER BY quantidade DESC
                     `;
@@ -70,7 +70,7 @@ class RelatorioController {
                         FROM clientes c
                         JOIN reservas r ON c.id = r.cliente_id
                         WHERE r.status = 'confirmada'
-                        ${this.getFiltroPeriodo(periodo, 'r.data_checkin')}
+                        ${this.getFiltroPeriodo(periodo, 'r.data_entrada')}
                         GROUP BY 
                             CASE 
                                 WHEN COUNT(*) > 5 THEN 'VIP'

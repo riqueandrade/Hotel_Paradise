@@ -22,11 +22,7 @@ class AuthController {
             }
 
             // Gera o token JWT
-            const token = jwt.sign(
-                { id: usuario.id, email: usuario.email },
-                process.env.JWT_SECRET || 'hotel_paradise_secret',
-                { expiresIn: '24h' }
-            );
+            const token = this.generateToken(usuario);
 
             // Remove a senha do objeto de resposta
             delete usuario.senha;
@@ -55,25 +51,25 @@ class AuthController {
             const salt = await bcrypt.genSalt(10);
             const senhaHash = await bcrypt.hash(senha, salt);
 
+            // Busca o cargo de funcionário
+            const [cargos] = await db.query('SELECT id FROM cargos WHERE nome = ?', ['Funcionario']);
+            const cargoId = cargos[0]?.id || 3; // Usa o ID 3 (Recepcionista) como fallback
+
             // Insere o novo usuário
             const [resultado] = await db.query(
-                'INSERT INTO usuarios (nome, email, senha, cargo) VALUES (?, ?, ?, ?)',
-                [nome, email, senhaHash, 'funcionario']
+                'INSERT INTO usuarios (nome, email, senha, cargo_id) VALUES (?, ?, ?, ?)',
+                [nome, email, senhaHash, cargoId]
             );
 
             // Gera o token JWT
-            const token = jwt.sign(
-                { id: resultado.insertId, email },
-                process.env.JWT_SECRET || 'hotel_paradise_secret',
-                { expiresIn: '24h' }
-            );
+            const token = this.generateToken({ id: resultado.insertId, email });
 
             res.status(201).json({
                 usuario: {
                     id: resultado.insertId,
                     nome,
                     email,
-                    cargo: 'funcionario'
+                    cargo_id: cargoId
                 },
                 token
             });
@@ -86,6 +82,14 @@ class AuthController {
     async verificarToken(req, res) {
         // O middleware de autenticação já verificou o token
         res.json({ valid: true });
+    }
+
+    generateToken(usuario) {
+        return jwt.sign(
+            { id: usuario.id, email: usuario.email },
+            process.env.JWT_SECRET || 'hotel_paradise_secret',
+            { expiresIn: '24h' }
+        );
     }
 }
 

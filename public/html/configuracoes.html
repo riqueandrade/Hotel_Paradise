@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Hotel Paradise</title>
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/configuracoes.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Hotel Paradise</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/html/dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+            <li><a href="/html/reservas.html"><i class="bi bi-calendar-check"></i> Reservas</a></li>
+            <li><a href="/html/clientes.html"><i class="bi bi-people"></i> Clientes</a></li>
+            <li><a href="/html/quartos.html"><i class="bi bi-door-open"></i> Quartos</a></li>
+            <li><a href="/html/produtos.html"><i class="bi bi-box-seam"></i> Produtos</a></li>
+            <li><a href="/html/relatorios.html"><i class="bi bi-graph-up"></i> Relatórios</a></li>
+            <li><a href="/html/configuracoes.html" class="active"><i class="bi bi-gear"></i> Configurações</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3">Configurações</h1>
+                <p class="text-muted">Gerencie as configurações do sistema</p>
+            </div>
+            <button class="btn btn-primary" id="btnSalvar">
+                <i class="bi bi-save"></i> Salvar Alterações
+            </button>
+        </div>
+
+        <!-- Configurações -->
+        <div class="row">
+            <!-- Perfil -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Perfil do Usuário</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="formPerfil">
+                            <div class="mb-3">
+                                <label class="form-label">Nome</label>
+                                <input type="text" class="form-control" id="nome" name="nome">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nova Senha</label>
+                                <input type="password" class="form-control" id="senha" name="senha">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Confirmar Nova Senha</label>
+                                <input type="password" class="form-control" id="confirmarSenha" name="confirmarSenha">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notificações -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Notificações</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="formNotificacoes">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notifReservas">
+                                    <label class="form-check-label">Novas Reservas</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notifCheckIn">
+                                    <label class="form-check-label">Check-in de Hóspedes</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notifCheckOut">
+                                    <label class="form-check-label">Check-out de Hóspedes</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notifProdutos">
+                                    <label class="form-check-label">Estoque Baixo de Produtos</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configurações do Sistema -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Configurações do Sistema</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="formSistema">
+                            <div class="mb-3">
+                                <label class="form-label">Nome do Hotel</label>
+                                <input type="text" class="form-control" id="nomeHotel" name="nomeHotel">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Endereço</label>
+                                <input type="text" class="form-control" id="endereco" name="endereco">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Telefone</label>
+                                <input type="text" class="form-control" id="telefone" name="telefone">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email de Contato</label>
+                                <input type="email" class="form-control" id="emailContato" name="emailContato">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backup e Restauração -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Backup e Restauração</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <button class="btn btn-outline-primary w-100 mb-2" id="btnBackup">
+                                <i class="bi bi-download"></i> Fazer Backup
+                            </button>
+                            <small class="text-muted">Último backup: <span id="ultimoBackup">Nunca</span></small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Restaurar Backup</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="arquivoBackup">
+                                <button class="btn btn-outline-secondary" type="button" id="btnRestaurar">
+                                    <i class="bi bi-upload"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/configuracoes.js"></script>
+</body>
+</html> 
