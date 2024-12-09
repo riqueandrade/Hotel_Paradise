@@ -1,3 +1,5 @@
+USE hotel_paradise;
+
 -- Inserir tipos de quarto
 INSERT INTO tipos_quarto (nome, descricao, preco_diaria) VALUES
 ('Standard', 'Quarto confortável com cama de casal', 200.00),
@@ -39,4 +41,26 @@ INSERT INTO produtos (nome, categoria, descricao, preco, estoque, estoque_minimo
 INSERT INTO consumos (reserva_id, produto_id, quantidade, valor_unitario, valor_total) VALUES
 (1, 1, 2, 5.00, 10.00),
 (1, 3, 1, 12.00, 12.00),
-(2, 4, 1, 89.90, 89.90); 
+(2, 4, 1, 89.90, 89.90);
+
+-- Inserir usuário administrador padrão (senha: admin123)
+INSERT INTO usuarios (nome, email, senha, cargo) VALUES
+('Administrador', 'admin@hotelparadise.com', '$2a$10$n8qF0s6UHXyZJ3Y1.lO3/.3GxgJqB1RV0QwqbHsDxpihwL2ADvxVi', 'admin');
+
+-- Inserir quartos
+INSERT INTO quartos (numero, tipo, capacidade, preco_diaria, descricao) VALUES
+('101', 'standard', 2, 150.00, 'Quarto Standard com duas camas de solteiro'),
+('102', 'standard', 2, 150.00, 'Quarto Standard com cama de casal'),
+('201', 'luxo', 2, 250.00, 'Quarto Luxo com vista para a cidade'),
+('202', 'luxo', 3, 300.00, 'Quarto Luxo Família com três camas'),
+('301', 'suite', 2, 400.00, 'Suite Master com hidromassagem'),
+('302', 'suite', 4, 500.00, 'Suite Presidencial com sala de estar');
+
+-- Inserir produtos
+INSERT INTO produtos (nome, descricao, preco, categoria, quantidade_estoque) VALUES
+('Água Mineral 500ml', 'Água mineral sem gás', 5.00, 'bebidas', 100),
+('Refrigerante 350ml', 'Refrigerante em lata', 7.00, 'bebidas', 80),
+('Chocolate', 'Barra de chocolate 90g', 8.00, 'alimentos', 50),
+('Salgadinho', 'Pacote de salgadinho 90g', 7.50, 'alimentos', 40),
+('Kit Dental', 'Escova e pasta de dente', 15.00, 'higiene', 30),
+('Sabonete', 'Sabonete em barra 90g', 3.00, 'higiene', 100); 
